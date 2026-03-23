@@ -7,8 +7,4 @@ public class Keyval : MonoBehaviour
     public string value;
     public bool isDelete;
     public bool isNext;
-
-
-
-
 }

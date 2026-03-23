@@ -1,29 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using TMPro;
 using UnityEngine;
 
 public class UI_fnc : MonoBehaviour
-{    
-    public void ShowPanel()
-    {
-        //Transform cam = ovrRig.centerEyeAnchor;
-        Vector3 spawnPos = cam.position + cam.forward * panelDistance;
-        Quaternion spawnRot = Quaternion.LookRotation(cam.forward, cam.up);
-        panelPrefab.transform.SetPositionAndRotation(spawnPos, spawnRot);
-
-    }
-
+{
     public TMP_Text displayText;
     private string currentText = "";
-    
-    public void addDigit(string digit)
+
+    public void AddDigit(string digit)
     {
         currentText += digit;
         UpdateDisplay();
     }
 
-    public void removeDigitlast()
+    public void RemoveDigitLast()
     {
         if (currentText.Length > 0)
         {
@@ -32,6 +24,24 @@ public class UI_fnc : MonoBehaviour
         }
     }
 
+    public void OnNext()
+    {
+        if (!string.IsNullOrEmpty(currentText))
+        {
+            string filePath = Path.Combine(Application.persistentDataPath, "input.txt");
 
+            // Append instead of overwrite
+            File.AppendAllText(filePath, currentText + "\n");
 
+            Debug.Log("Input saved to: " + filePath);
+
+            currentText = "";
+            UpdateDisplay();
+        }
+    }
+
+    void UpdateDisplay()
+    {
+        displayText.text = currentText;
+    }
 }
