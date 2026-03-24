@@ -225,6 +225,7 @@ GameObject:
   - component: {fileID: 8673766953253356836}
   - component: {fileID: 4479026507455682489}
   - component: {fileID: 9036273444044445679}
+  - component: {fileID: -1383083482093814576}
   m_Layer: 5
   m_Name: Number-Button
   m_TagString: Untagged
@@ -349,3 +350,22 @@ MonoBehaviour:
   value: 
   isDelete: 0
   isNext: 0
+--- !u!114 &-1383083482093814576
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7470489866209847992}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ad78fa7883f92a44810b7123d58507c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputMode: 0
+  dwellTime: 2.5
+  flickerDuration: 5
+  flickerHz: 15
+  borderImage: {fileID: 8673766953253356836}
+  innerImage: {fileID: 688092238322574255}
+  uiController: {fileID: 0}
