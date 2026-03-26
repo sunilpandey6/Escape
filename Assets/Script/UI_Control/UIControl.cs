@@ -44,10 +44,13 @@ public class UIControl : MonoBehaviour
 
     public void Toggle()
     {
-        bool isAActive = containerA.activeSelf;
-        containerA.SetActive(!isAActive);
-        containerB.SetActive(isAActive);
-        UpdateButtonColor(false, b1i);
-        UpdateButtonColor(true, b2i);
+        bool newState = !containerA.activeSelf;
+
+        containerA.SetActive(newState);
+        containerB.SetActive(!newState);
+
+        UpdateButtonColor(newState, b2i);
+        UpdateButtonColor(!newState, b1i);
     }
+
 }

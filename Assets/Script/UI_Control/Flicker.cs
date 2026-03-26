@@ -4,13 +4,11 @@ using System;
 
 public static class Flicker
 {
-
     public static void StartFlicker(
         ref bool isFlickering,
         ref float flickerTimer,
         ref int frameCounter,
-        ref bool flickerState
-    )
+        ref bool flickerState)
     {
         isFlickering = true;
         flickerTimer = 0f;
@@ -19,56 +17,41 @@ public static class Flicker
     }
 
     public static void UpdateFlickerVisual(
-    ref float flickerTimer,
-    ref int frameCounter,
-    ref bool flickerState,
-    ref bool isFlickering,
-    Image innerImage,
-    Color flickerOn,
-    Color flickerOff,
-    int framesPerToggle,
-    float flickerDuration,
-    Action onFlickerEnd = null)
+        ref float flickerTimer,
+        ref int frameCounter,
+        ref bool flickerState,
+        ref bool isFlickering,
+        Image innerImage,
+        Color flickerOn,
+        Color flickerOff,
+        int framesPerToggle,
+        float flickerDuration,
+        Action onFlickerEnd = null)
     {
         flickerTimer += Time.deltaTime;
         frameCounter++;
 
+        // Toggle flicker state
         if (frameCounter >= framesPerToggle)
         {
             frameCounter = 0;
             flickerState = !flickerState;
 
-            if (innerImage != null)
+            if (innerImage)
                 innerImage.color = flickerState ? flickerOn : flickerOff;
         }
 
+        // End flicker
         if (flickerTimer >= flickerDuration)
         {
-            StopFlicker(
-                ref isFlickering,
-                ref flickerState,
-                ref frameCounter,
-                innerImage,
-                flickerOff,
-                onFlickerEnd);
+            isFlickering = false;
+            flickerState = false;
+            frameCounter = 0;
+
+            if (innerImage)
+                innerImage.color = flickerOff;
+
+            onFlickerEnd?.Invoke();
         }
-    }
-
-    public static void StopFlicker(
-        ref bool isFlickering,
-        ref bool flickerState,
-        ref int frameCounter,
-        Image innerImage,
-        Color flickerOff,
-        Action onFlickerEnd = null)
-    {
-        isFlickering = false;
-        flickerState = false;
-        frameCounter = 0;
-
-        if (innerImage != null)
-            innerImage.color = flickerOff;
-
-        onFlickerEnd?.Invoke();
     }
 }
