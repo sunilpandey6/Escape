@@ -75,4 +75,6 @@ public class InputSettings: MonoBehaviour
         Debug.Log($"[InputSettings] Flicker: every {framesPerToggle} frames " +
                   $"at {flickerHz}Hz on {detectedRefreshRate}Hz display");
     }
+
+
 }

@@ -21,16 +21,31 @@ public class BtnHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     [Header("Progress UI")]
     public Slider progressSlider;
-    public Text progressText;
+    public Text DwellTimeText;
+    [Header("Slider Settings")]
+    public float minDwellTime = 1f; 
+    public float maxDwellTime = 5f; 
+    public float step = 0.2f;
 
     void Start()
     {
         ResetTargetBorder();
+
+        if (progressSlider != null && InputSettings.Instance != null)
+        {
+            progressSlider.minValue = minDwellTime;
+            progressSlider.maxValue = maxDwellTime;
+
+            float initialValue = Mathf.Round(InputSettings.Instance.dwellTime / step) * step;
+            progressSlider.value = initialValue;
+            UDTT(initialValue);
+
+        }
     }
 
     void Update()
-    {
-        if (InputSettings.Instance == null || !InputSettings.Instance.FrequencyReady)
+        { 
+             if (InputSettings.Instance == null || !InputSettings.Instance.FrequencyReady)
             return;
 
         InputSettings s = InputSettings.Instance;
@@ -39,15 +54,14 @@ public class BtnHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         {
             progressSlider.value = s.dwellTime;  // Set max value to dwell time
         }
-        if (progressText != null)
+        if (DwellTimeText != null)
         {
             float currentMs = timer * 1000f;
-            progressText.text = Mathf.RoundToInt(currentMs) + " ms";
+            DwellTimeText.text = Mathf.RoundToInt(currentMs) + " ms";
         }
-
+                
         if (isHovering)
         {
-            
             outterImage.color = s.idleColor;  // Set outer image to idle color when hovering
             timer += Time.deltaTime;
             float progress = Mathf.Clamp01(timer / s.dwellTime);
@@ -81,17 +95,43 @@ public class BtnHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     }
 
+
+
+    void OnDwellTimeSliderChanged(float value)
+    {
+        // Snap to nearest step
+        float steppedValue = Mathf.Round(value / step) * step;
+
+        // Update InputSettings
+        if (InputSettings.Instance != null)
+            InputSettings.Instance.dwellTime = steppedValue;
+
+        // Update slider & text
+        progressSlider.value = steppedValue;
+        UDTT(steppedValue);
+    }
+
+    void UDTT(float value)
+    {
+        if (DwellTimeText != null)
+            DwellTimeText.text = Mathf.RoundToInt(value * 1000f) + " ms"; // show in ms
+    }
+
     void ResetState()
     {
         timer = 0f;
         hasTriggered = false;
         isHovering = false;
 
-        if (progressSlider != null)
-            progressSlider.value = s.dwellTime;  // Set to max to show full progress when reset
+        timer = 0f;
+        hasTriggered = false;
+        isHovering = false;
 
-        if (progressText != null)
-            progressText.text = s.dwellTime * 1000f + " ms";  // Show full dwell time in ms when reset
+        if (progressSlider != null && InputSettings.Instance != null)
+            progressSlider.value = InputSettings.Instance.dwellTime;
+
+        if (DwellTimeText != null && InputSettings.Instance != null)
+            DwellTimeText.text = Mathf.RoundToInt(InputSettings.Instance.dwellTime * 1000f) + " ms";
 
         ResetTargetBorder();
 
@@ -112,4 +152,5 @@ public class BtnHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         isHovering = false;
     }
+ 
 }
