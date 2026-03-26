@@ -1,36 +1,37 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine;
+using System;
 using TMPro;
 
-public class BtnHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+
+public class BtnHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler  
 {
     [Header("Hover btn")]
     public Image outterImage;
 
     [Header("References")]
     public Image targetBorderImage;
-
     private bool hasTriggered = false;
     private float timer = 0f;
+
     private bool isHovering = false;
 
     [Header("Progress UI")]
     public Slider progressSlider;
-    public TMP_Text dwellTimeText; // TextMeshPro reference
+    public TMP_Text DwellTimeText;
 
     [Header("Slider Settings")]
-    public float minDwellTime = 1f;
-    public float maxDwellTime = 5f;
+    public float minDwellTime = 1f; 
+    public float maxDwellTime = 5f; 
     public float step = 0.2f;
 
     void Start()
     {
         ResetTargetBorder();
 
-        // Initialize slider
         if (progressSlider != null && InputSettings.Instance != null)
         {
             progressSlider.minValue = minDwellTime;
@@ -38,55 +39,51 @@ public class BtnHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
             float initialValue = Mathf.Round(InputSettings.Instance.dwellTime / step) * step;
             progressSlider.value = initialValue;
-            UpdateDwellTimeText(initialValue);
+            UDTT(initialValue);
 
-            // Optional: Add listener if you want live updates in code
-            progressSlider.onValueChanged.AddListener(OnDwellTimeSliderChanged);
         }
-
-        // Initialize text
-        if (dwellTimeText != null && InputSettings.Instance != null)
-            UpdateDwellTimeText(InputSettings.Instance.dwellTime);
     }
 
     void Update()
-    {
-        if (InputSettings.Instance == null || !InputSettings.Instance.FrequencyReady)
+        { 
+             if (InputSettings.Instance == null || !InputSettings.Instance.FrequencyReady)
             return;
 
-        float dwellTime = InputSettings.Instance.dwellTime;
+        InputSettings s = InputSettings.Instance;
 
-        // Update hover progress slider
         if (progressSlider != null)
-            progressSlider.value = dwellTime;
-
-        // Update dwell time text during hover
-        if (dwellTimeText != null)
-            dwellTimeText.text = Mathf.RoundToInt(timer * 1000f) + " ms";
-
+        {
+            progressSlider.value = s.dwellTime;  // Set max value to dwell time
+        }
+        if (DwellTimeText != null)
+        {
+            float currentMs = timer * 1000f;
+            DwellTimeText.text = Mathf.RoundToInt(currentMs) + " ms";
+        }
+                
         if (isHovering)
         {
-            outterImage.color = InputSettings.Instance.idleColor;
+            outterImage.color = s.idleColor;  // Set outer image to idle color when hovering
             timer += Time.deltaTime;
-            float progress = Mathf.Clamp01(timer / dwellTime);
+            float progress = Mathf.Clamp01(timer / s.dwellTime);
 
-            // Update border color
+            // update border color based on progress
             if (targetBorderImage != null)
             {
                 if (progress < 0.5f)
                 {
                     float t = progress / 0.5f;
-                    targetBorderImage.color = Color.Lerp(InputSettings.Instance.idleColor, InputSettings.Instance.midColor, t);
+                    targetBorderImage.color = Color.Lerp(s.idleColor, s.midColor, t);
                 }
                 else
                 {
                     float t = (progress - 0.5f) / 0.5f;
-                    targetBorderImage.color = Color.Lerp(InputSettings.Instance.midColor, InputSettings.Instance.activeColor, t);
+                    targetBorderImage.color = Color.Lerp(s.midColor, s.activeColor, t);
                 }
             }
 
-            // Trigger button action after dwell time
-            if (timer >= dwellTime && !hasTriggered)
+            // now check if we should trigger the button action
+            if (timer >= s.dwellTime && !hasTriggered)
             {
                 hasTriggered = true;
                 ResetState();
@@ -96,28 +93,29 @@ public class BtnHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         {
             ResetState();
         }
+
     }
 
-    // This must be public for Slider OnValueChanged
-    public void OnDwellTimeSliderChanged(float value)
+
+
+    void OnDwellTimeSliderChanged(float value)
     {
         // Snap to nearest step
         float steppedValue = Mathf.Round(value / step) * step;
 
+        // Update InputSettings
         if (InputSettings.Instance != null)
             InputSettings.Instance.dwellTime = steppedValue;
 
         // Update slider & text
-        if (progressSlider != null)
-            progressSlider.value = steppedValue;
-
-        UpdateDwellTimeText(steppedValue);
+        progressSlider.value = steppedValue;
+        UDTT(steppedValue);
     }
 
-    void UpdateDwellTimeText(float value)
+    void UDTT(float value)
     {
-        if (dwellTimeText != null)
-            dwellTimeText.text = Mathf.RoundToInt(value * 1000f) + " ms";
+        if (DwellTimeText != null)
+            DwellTimeText.text = Mathf.RoundToInt(value * 1000f) + " ms"; // show in ms
     }
 
     void ResetState()
@@ -126,13 +124,18 @@ public class BtnHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         hasTriggered = false;
         isHovering = false;
 
+        timer = 0f;
+        hasTriggered = false;
+        isHovering = false;
+
         if (progressSlider != null && InputSettings.Instance != null)
             progressSlider.value = InputSettings.Instance.dwellTime;
 
-        if (dwellTimeText != null && InputSettings.Instance != null)
-            dwellTimeText.text = Mathf.RoundToInt(InputSettings.Instance.dwellTime * 1000f) + " ms";
+        if (DwellTimeText != null && InputSettings.Instance != null)
+            DwellTimeText.text = Mathf.RoundToInt(InputSettings.Instance.dwellTime * 1000f) + " ms";
 
         ResetTargetBorder();
+
     }
 
     void ResetTargetBorder()
@@ -150,4 +153,5 @@ public class BtnHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         isHovering = false;
     }
+ 
 }
