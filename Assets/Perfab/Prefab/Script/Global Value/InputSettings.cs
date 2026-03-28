@@ -17,7 +17,7 @@ public class InputSettings : MonoBehaviour
     [Header("Dwell Settings")]
     public float dwellTime = 2.5f;
     [Header("Flicker Settings")]
-    public float flickerDuration = 1f;
+    public float flickerDuration = 3f;
     public float flickerHz = 15f;
 
     [Header("Frequency Initialization")]

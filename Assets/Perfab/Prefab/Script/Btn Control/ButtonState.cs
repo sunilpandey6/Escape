@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -14,18 +15,21 @@ public class ButtonState : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     public Att attribute;
     public enum Att
     {
-        None,
-        HeadingIdle
+        Normal,
+        HeadingIdle,
+        Flicker
 
     }
 
     [Header("Visuals")]
     [SerializeField] private Image borderImage;
     [SerializeField] private Sprite fillImage;
-    [SerializeField] private Sprite btnImage;
-    
-    private SpriteRenderer spriteRendererBtn;
     private SpriteRenderer spriteRendererFill;
+
+    [SerializeField] private TMP_Text textVal;
+    [SerializeField] public Image btnImageUI;
+
+
 
 
     [Header("GLobal Value")]
@@ -35,6 +39,9 @@ public class ButtonState : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     [SerializeField] public bool isHovering = false;
     [SerializeField] private bool hasTriggered = false;
     [SerializeField] private float dwellTimer = 0f;
+
+    [SerializeField] public bool isFlickering = false;
+    [SerializeField] public float flickerTimes = 1f;
 
     [Header("Button Action")]
     [SerializeField] private OnComplete target;
@@ -55,23 +62,17 @@ public class ButtonState : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     [SerializeField] private float outerPadding = 10f;
 
 
-
-    
-
     public void Start()
     {
         if (borderImage != null) Dwell.Invisble(borderImage);
-        spriteRendererBtn = GetComponent<SpriteRenderer>();
+        btnImageUI = GetComponent<Image>();
+
         spriteRendererFill = GetComponent<SpriteRenderer>();
         if (spriteRendererFill != null && fillImage != null)
-        { 
+        {
             spriteRendererFill.sprite = fillImage;
-            Dwell.Invisble(spriteRendererFill); 
+            Dwell.Invisble(spriteRendererFill);
         }
-        
-        if(spriteRendererBtn != null && btnImage != null)
-            spriteRendererBtn.sprite = btnImage;
-
         UpdateSizes();
 
     }
@@ -81,7 +82,7 @@ public class ButtonState : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     {
         switch (attribute)
         {
-            case Att.None:
+            case Att.Normal:
                 if (isHovering)
                 {
                     Dwell.DwellMain(ref dwellTimer, ref hasTriggered,
@@ -102,15 +103,21 @@ public class ButtonState : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
                 }
                 break;
             case Att.HeadingIdle:
-                
+
+                break;
+            case Att.Flicker:
+                if (isHovering)
+                {
+                    target.Execution(selectedAction1);
+                }
                 break;
         }
-        
+
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-       //Dwell.Visble(borderImage,inputSettings.idleColor);
+        //Dwell.Visble(borderImage,inputSettings.idleColor);
         Dwell.Visble(spriteRendererFill);
 
         isHovering = true;
@@ -142,4 +149,6 @@ public class ButtonState : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
             btnSize.y + outerPadding
         );
     }
+
+
 }

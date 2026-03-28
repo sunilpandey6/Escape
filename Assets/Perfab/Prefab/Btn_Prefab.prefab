@@ -460,11 +460,14 @@ MonoBehaviour:
   attribute: 0
   borderImage: {fileID: 760408136059355266}
   fillImage: {fileID: 21300000, guid: 98ed78790d7c35241bd421ccb798a948, type: 3}
-  btnImage: {fileID: 21300000, guid: 98ed78790d7c35241bd421ccb798a948, type: 3}
+  textVal: {fileID: 347884648822981190}
+  btnImageUI: {fileID: 6103136203591205771}
   inputSettings: {fileID: 0}
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
+  isFlickering: 0
+  flickerTimes: 1
   target: {fileID: 1129151825711935678}
   selectedAction: 0
   selectedAction1: 0
@@ -490,4 +493,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   displayText: {fileID: 0}
   buttonState: {fileID: 2748737974023002315}
+  inputSettings: {fileID: 0}
   uiControl: {fileID: 0}

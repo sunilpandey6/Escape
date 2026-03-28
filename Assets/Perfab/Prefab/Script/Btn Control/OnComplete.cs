@@ -11,15 +11,20 @@ public class OnComplete : MonoBehaviour
     public TMP_Text displayText;
     private string currentText = "";
     private bool isHovering;
+    [Header("Button State")]
     public ButtonState buttonState;
+    [Header("Input Settings")]
+    public InputSettings inputSettings;
+    [Header("UI Control")]
     public UIControl uiControl;
+    //private Coroutine FlickerCoroutine;
+
     public enum ActionType
     {
         None,
         Flicker,
         TestAction,
         ResetDwell,
-        ToogleUI
 
     }
 
@@ -33,7 +38,7 @@ public class OnComplete : MonoBehaviour
                 break;
             case ActionType.Flicker:
                 Debug.Log("Flicker action executed!"); // Implement your flicker logic here
-
+                FF();
                 break;
             case ActionType.TestAction:
                 Action(buttonState);
@@ -41,14 +46,59 @@ public class OnComplete : MonoBehaviour
             case ActionType.ResetDwell:
                 buttonState.isHovering = false;
                 break;
-            case ActionType.ToogleUI:
-                // Implement your UI toggle logic here
-                uiControl.Toggle();
-                break;
-
         }
     }
 
+    #region Flicker
+    public void FF()
+    {
+        StartCoroutine(Flicker());
+    }
+
+    private IEnumerator Flicker()
+    {
+        buttonState.isFlickering = true;
+        for (int i = 0; i < buttonState.flickerTimes; i++)
+        {
+            float elapsed = 0f;
+            while (elapsed < inputSettings.flickerDuration)
+            {
+                if ((elapsed * inputSettings.flickerHz) % 1f < 0.5f)
+                {
+                    ChangeColor(inputSettings.flickerOn);
+                }
+                else
+                {
+                    ChangeColor(inputSettings.idleColor);
+                }
+
+                yield return null;
+                elapsed += Time.deltaTime;
+            }
+
+            ChangeColor(inputSettings.idleColor);
+
+            if (i < buttonState.flickerTimes - 1)
+            {
+                yield return new WaitForSeconds(0.1f);
+            }
+
+        }
+        buttonState.isFlickering = false;
+    }
+
+    public void ChangeColor(Color color)
+    {
+        if (buttonState.btnImageUI != null)
+        {
+            buttonState.btnImageUI.color = color;
+        }
+        else
+            Debug.LogWarning("btnImageUI is not assigned in the inspector.");
+    }
+    #endregion
+
+    #region Action On Test
     public void Action(ButtonState bs)
     {
         if (bs.isNext) OnNext();
@@ -84,4 +134,6 @@ public class OnComplete : MonoBehaviour
     {
         displayText.text = currentText;
     }
+
+    #endregion
 }
