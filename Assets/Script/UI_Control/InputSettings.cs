@@ -1,14 +1,15 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.XR;
 using System.Collections;
 using System.Collections.Generic;
 
-public class InputSettings: MonoBehaviour
+
+
+public class InputSettings : MonoBehaviour
 {
     public static InputSettings Instance { get; private set; }
-
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -22,15 +23,16 @@ public class InputSettings: MonoBehaviour
 
     [Header("Dwell Settings")]
     public float dwellTime = 2.5f;
-
     [Header("Flicker Settings")]
     public float flickerDuration = 1f;
     public float flickerHz = 15f;
 
     [Header("Frequency Initialization")]
     public float initDelay = 0.5f;
+    [Header("Fade Settings")]
+    public float fadeDurationFactor = 0.2f;
 
-    // Read-only after init — BtnControl reads these
+    // Read-only after init ï¿½ BtnControl reads these
     public float detectedRefreshRate { get; private set; } = 60f;
     public int framesPerToggle { get; private set; } = 1;
     public bool FrequencyReady { get; private set; } = false;
@@ -44,10 +46,12 @@ public class InputSettings: MonoBehaviour
     public Color flickerOn = new Color32(0xFF, 0xFF, 0xFF, 0xFF);
 
     void Start()
-    {
-        StartCoroutine(InitFrequencyCoroutine());
-    }
 
+    {
+
+        StartCoroutine(InitFrequencyCoroutine());
+
+    }
     IEnumerator InitFrequencyCoroutine()
     {
         yield return new WaitForSeconds(initDelay);
@@ -76,5 +80,5 @@ public class InputSettings: MonoBehaviour
                   $"at {flickerHz}Hz on {detectedRefreshRate}Hz display");
     }
 
-
 }
+    

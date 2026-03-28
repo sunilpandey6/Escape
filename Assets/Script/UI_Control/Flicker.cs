@@ -17,21 +17,20 @@ public static class Flicker
     }
 
     public static void UpdateFlickerVisual(
-        ref float flickerTimer,
-        ref int frameCounter,
-        ref bool flickerState,
-        ref bool isFlickering,
-        Image innerImage,
-        Color flickerOn,
-        Color flickerOff,
-        int framesPerToggle,
-        float flickerDuration,
-        Action onFlickerEnd = null)
+    ref float flickerTimer,
+    ref int frameCounter,
+    ref bool flickerState,
+    ref bool isFlickering,
+    Image innerImage,
+    Color flickerOn,
+    Color flickerOff,
+    int framesPerToggle,
+    float flickerDuration,
+    Action onFlickerEnd = null)
     {
         flickerTimer += Time.deltaTime;
         frameCounter++;
 
-        // Toggle flicker state
         if (frameCounter >= framesPerToggle)
         {
             frameCounter = 0;
@@ -41,15 +40,32 @@ public static class Flicker
                 innerImage.color = flickerState ? flickerOn : flickerOff;
         }
 
-        // End flicker
         if (flickerTimer >= flickerDuration)
         {
-            isFlickering = false;
-            flickerState = false;
-            frameCounter = 0;
+            StopFlicker(
+                ref isFlickering,
+                ref flickerState,
+                ref frameCounter,
+                innerImage,
+                flickerOff,
+                onFlickerEnd);
+        }
+    }
 
-            if (innerImage)
-                innerImage.color = flickerOff;
+    public static void StopFlicker(
+        ref bool isFlickering,
+        ref bool flickerState,
+        ref int frameCounter,
+        Image innerImage,
+        Color flickerOff,
+        Action onFlickerEnd = null)
+    {
+        isFlickering = false;
+        flickerState = false;
+        frameCounter = 0;
+
+        if (innerImage != null)
+            innerImage.color = flickerOff;
 
             onFlickerEnd?.Invoke();
         }
