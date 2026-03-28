@@ -1,13 +1,9 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine;
-using System;
 using TMPro;
-
-
-public class BtnHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler  
+public class DwellBtnHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("Hover btn")]
     public Image outterImage;
@@ -17,105 +13,73 @@ public class BtnHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     private bool hasTriggered = false;
     private float timer = 0f;
 
+    public InputSettings inputSettings;
     private bool isHovering = false;
 
     [Header("Progress UI")]
-    public Slider progressSlider;
-    public TMP_Text DwellTimeText;
+    [SerializeField] private Slider progressSlider;
+    [SerializeField] private TMP_Text DwellTimeText;
 
     [Header("Slider Settings")]
-    public float minDwellTime = 1f; 
-    public float maxDwellTime = 5f; 
-    public float step = 0.2f;
+    public float minDwellTime = 1f;
+    public float maxDwellTime = 5f;
+    public float inc = 0.2f;
 
     void Start()
     {
+        targetBorderImage = outterImage; // Use outterImage as the target border for dwell feedback
         ResetTargetBorder();
-
         if (progressSlider != null && InputSettings.Instance != null)
         {
             progressSlider.minValue = minDwellTime;
             progressSlider.maxValue = maxDwellTime;
-
-            float initialValue = Mathf.Round(InputSettings.Instance.dwellTime / step) * step;
-            progressSlider.value = initialValue;
-            UDTT(initialValue);
-
+            progressSlider.value = inputSettings.dwellTime;
+            progressSlider.onValueChanged.AddListener(OnDwellTimeSliderChanged);
+            // console log dwell time
+            UnityEngine.Debug.Log("Initial Dwell Time: " + InputSettings.Instance.dwellTime);
+            UDTT(progressSlider.value);
         }
     }
-
     void Update()
-        { 
-             if (InputSettings.Instance == null || !InputSettings.Instance.FrequencyReady)
+    {
+        if (inputSettings == null || !InputSettings.Instance.FrequencyReady)
             return;
-
-        InputSettings s = InputSettings.Instance;
-
-        if (progressSlider != null)
-        {
-            progressSlider.value = s.dwellTime;  // Set max value to dwell time
-        }
-        if (DwellTimeText != null)
-        {
-            float currentMs = timer * 1000f;
-            DwellTimeText.text = Mathf.RoundToInt(currentMs) + " ms";
-        }
-                
         if (isHovering)
         {
-            outterImage.color = s.idleColor;  // Set outer image to idle color when hovering
-            timer += Time.deltaTime;
-            float progress = Mathf.Clamp01(timer / s.dwellTime);
-
-            // update border color based on progress
-            if (targetBorderImage != null)
+           timer += Time.deltaTime;
+            Dwell.DwellMain(
+            ref timer,
+            ref hasTriggered,
+            progressSlider.value,
+            targetBorderImage,
+            inputSettings.idleColor,
+            inputSettings.midColor,
+            inputSettings.activeColor,
+            () =>
             {
-                if (progress < 0.5f)
-                {
-                    float t = progress / 0.5f;
-                    targetBorderImage.color = Color.Lerp(s.idleColor, s.midColor, t);
-                }
-                else
-                {
-                    float t = (progress - 0.5f) / 0.5f;
-                    targetBorderImage.color = Color.Lerp(s.midColor, s.activeColor, t);
-                }
-            }
-
-            // now check if we should trigger the button action
-            if (timer >= s.dwellTime && !hasTriggered)
-            {
-                hasTriggered = true;
+               // Action on dwell complete
                 ResetState();
             }
-        }
-        else
-        {
-            ResetState();
-        }
 
+            );
+            outterImage.color = inputSettings.idleColor; // Set outer image to idle color when hovering
+        }
     }
-
-
-
     void OnDwellTimeSliderChanged(float value)
     {
-        // Snap to nearest step
+        float step = 0.5f;
         float steppedValue = Mathf.Round(value / step) * step;
 
-        // Update InputSettings
-        if (InputSettings.Instance != null)
-            InputSettings.Instance.dwellTime = steppedValue;
+        inputSettings.dwellTime = steppedValue;
+        progressSlider.SetValueWithoutNotify(steppedValue);
 
-        // Update slider & text
-        progressSlider.value = steppedValue;
         UDTT(steppedValue);
     }
 
     void UDTT(float value)
     {
         if (DwellTimeText != null)
-            DwellTimeText.text = Mathf.RoundToInt(value * 1000f) + " ms"; // show in ms
+            DwellTimeText.text = value.ToString("0.0") + " s";
     }
 
     void ResetState()
@@ -123,35 +87,92 @@ public class BtnHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         timer = 0f;
         hasTriggered = false;
         isHovering = false;
-
-        timer = 0f;
-        hasTriggered = false;
-        isHovering = false;
-
-        if (progressSlider != null && InputSettings.Instance != null)
-            progressSlider.value = InputSettings.Instance.dwellTime;
-
-        if (DwellTimeText != null && InputSettings.Instance != null)
-            DwellTimeText.text = Mathf.RoundToInt(InputSettings.Instance.dwellTime * 1000f) + " ms";
-
         ResetTargetBorder();
+    }
+    private IEnumerator FadeIn()
+    {
+        // Correct reference to dwellTime and fadeDurationFactor
+        float fadeDuration = Mathf.Min(inputSettings.dwellTime * inputSettings.fadeDurationFactor, 1f); // Make the fade duration faster than the dwell time
+        float timeElapsed = 0f;
+        Color currentColor = outterImage.color; // Use targetBorderImage here (or targetImage if needed)
+        while (timeElapsed < fadeDuration)
+        {
+            float alpha = Mathf.Lerp(0f, 1f, timeElapsed / fadeDuration);
+            outterImage.color = new Color(currentColor.r, currentColor.g, currentColor.b, alpha);
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
+        outterImage.color = new Color(currentColor.r, currentColor.g, currentColor.b, 1f); // Ensure it ends at full opacity
+    }
+
+    private IEnumerator FadeOut()
+
+    {
+
+        // Correct reference to dwellTime and fadeDurationFactor
+
+        float fadeDuration = Mathf.Min(inputSettings.dwellTime * inputSettings.fadeDurationFactor, 1f); // Make the fade duration faster than the dwell time
+
+        float timeElapsed = 0f;
+
+        Color currentColor = outterImage.color; // Use targetBorderImage here (or targetImage if needed)
+
+
+
+        while (timeElapsed < fadeDuration)
+
+        {
+
+            float alpha = Mathf.Lerp(1f, 0f, timeElapsed / fadeDuration);
+
+            outterImage.color = new Color(currentColor.r, currentColor.g, currentColor.b, alpha);
+
+            timeElapsed += Time.deltaTime;
+
+            yield return null;
+
+        }
+
+
+
+        outterImage.color = new Color(currentColor.r, currentColor.g, currentColor.b, 0f); // Ensure it ends at fully transparent
 
     }
+
+
 
     void ResetTargetBorder()
+
     {
+
         if (targetBorderImage != null && InputSettings.Instance != null)
+
             targetBorderImage.color = InputSettings.Instance.idleColor;
+
     }
+
+
 
     public void OnPointerEnter(PointerEventData eventData)
+
     {
+
         isHovering = true;
+
+        StartCoroutine(FadeIn());
+
     }
 
+
+
     public void OnPointerExit(PointerEventData eventData)
+
     {
+
         isHovering = false;
+
+        StartCoroutine(FadeOut());
+
     }
- 
+
 }
