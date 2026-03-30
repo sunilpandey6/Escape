@@ -107,7 +107,7 @@ public class BtnControl : MonoBehaviour,
 
     // ── Dwell callbacks ───────────────────────────────────────────────────────
 
-    void OnDwellComplete()
+    public void OnDwellComplete()
     {
         TriggerAction();
 

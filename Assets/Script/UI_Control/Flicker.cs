@@ -16,7 +16,11 @@ public static class Flicker
         flickerState = false;
     }
 
+<<<<<<< HEAD
     public static void FlickerMain(
+=======
+    public static void UpdateFlickerVisual(
+>>>>>>> 78df3413f0ac3f0ef42fdf8a6aa56f4fe2c093b2
         ref float flickerTimer,
         ref int frameCounter,
         ref bool flickerState,
@@ -31,7 +35,11 @@ public static class Flicker
         flickerTimer += Time.deltaTime;
         frameCounter++;
 
+<<<<<<< HEAD
         // Handle the visual toggle logic
+=======
+        // Toggle flicker state
+>>>>>>> 78df3413f0ac3f0ef42fdf8a6aa56f4fe2c093b2
         if (frameCounter >= framesPerToggle)
         {
             frameCounter = 0;
@@ -41,6 +49,7 @@ public static class Flicker
                 innerImage.color = flickerState ? flickerOn : flickerOff;
         }
 
+<<<<<<< HEAD
         // Handle the completion logic
         if (flickerTimer >= flickerDuration)
         {
@@ -65,4 +74,19 @@ public static class Flicker
 
         onFlickerEnd?.Invoke();
     }
+=======
+        // End flicker
+        if (flickerTimer >= flickerDuration)
+        {
+            isFlickering = false;
+            flickerState = false;
+            frameCounter = 0;
+
+            if (innerImage)
+                innerImage.color = flickerOff;
+
+            onFlickerEnd?.Invoke();
+        }
+    }
+>>>>>>> 78df3413f0ac3f0ef42fdf8a6aa56f4fe2c093b2
 }
