@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
@@ -28,12 +28,6 @@ public class ButtonState : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     [SerializeField] private TMP_Text textVal;
     [SerializeField] public Image btnImageUI;
-
-
-
-
-    [Header("GLobal Value")]
-    public InputSettings inputSettings;
 
     [Header("Internal Value")]
     [SerializeField] public bool isHovering = false;
@@ -86,8 +80,8 @@ public class ButtonState : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
                 if (isHovering)
                 {
                     Dwell.DwellMain(ref dwellTimer, ref hasTriggered,
-                        inputSettings.dwellTime, borderImage, inputSettings.idleColor,
-                        inputSettings.midColor, inputSettings.activeColor,
+                        InputSettings.Instance.dwellTime, borderImage, InputSettings.Instance.idleColor,
+                        InputSettings.Instance.midColor, InputSettings.Instance.activeColor,
                         () =>
                         {
                             target.Execution(selectedAction);
@@ -98,7 +92,7 @@ public class ButtonState : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
                 else
                 {
 
-                    Dwell.ResetDwell(ref dwellTimer, ref hasTriggered, borderImage, inputSettings.idleColor);
+                    Dwell.ResetDwell(ref dwellTimer, ref hasTriggered, borderImage, InputSettings.Instance.idleColor);
 
                 }
                 break;
@@ -117,7 +111,7 @@ public class ButtonState : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        //Dwell.Visble(borderImage,inputSettings.idleColor);
+        //Dwell.Visble(borderImage,InputSettings.Instance.idleColor);
         Dwell.Visble(spriteRendererFill);
 
         isHovering = true;

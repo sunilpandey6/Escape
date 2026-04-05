@@ -14,7 +14,7 @@ public class OnComplete : MonoBehaviour
     [Header("Button State")]
     public ButtonState buttonState;
     [Header("Input Settings")]
-    public InputSettings inputSettings;
+    // Removed public InputSettings inputSettings;
     [Header("UI Control")]
     public UIControl uiControl;
     //private Coroutine FlickerCoroutine;
@@ -61,22 +61,22 @@ public class OnComplete : MonoBehaviour
         for (int i = 0; i < buttonState.flickerTimes; i++)
         {
             float elapsed = 0f;
-            while (elapsed < inputSettings.flickerDuration)
+            while (elapsed < InputSettings.Instance.flickerDuration)
             {
-                if ((elapsed * inputSettings.flickerHz) % 1f < 0.5f)
+                if ((elapsed * InputSettings.Instance.flickerHz) % 1f < 0.5f)
                 {
-                    ChangeColor(inputSettings.flickerOn);
+                    ChangeColor(InputSettings.Instance.flickerOn);
                 }
                 else
                 {
-                    ChangeColor(inputSettings.idleColor);
+                    ChangeColor(InputSettings.Instance.idleColor);
                 }
 
                 yield return null;
                 elapsed += Time.deltaTime;
             }
 
-            ChangeColor(inputSettings.idleColor);
+            ChangeColor(InputSettings.Instance.idleColor);
 
             if (i < buttonState.flickerTimes - 1)
             {
