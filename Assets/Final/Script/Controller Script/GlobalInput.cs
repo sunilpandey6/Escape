@@ -31,5 +31,10 @@ public class GlobalInput : MonoBehaviour
     [Header("Flicker Colors")]
     public Color flickerOn = new Color32(0, 0, 0, 0); // black
 
+    [Header("UI Positioning")]
+    public float distance = 2f;
+    public float horizontalOffset = 0f;
+    public float verticalOffset = 0f;
+
 
 }

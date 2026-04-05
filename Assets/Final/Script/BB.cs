@@ -49,20 +49,15 @@ public class BB : MonoBehaviour
     public bool isDelete;
     public bool isNext;
 
-    public TestScene testScene;
-
     // Button Actions
     public enum ActionType
     {
         None, //Headings
         Flicker,  // Flicker
         ResetDwell, // Dwell Setting
-        TestUI // UI Control
-
-
     }
 
-    #region Awake / Start / Update
+    #region Unity Lifecycle
     public void Awake()
     {
         if(outlineImage)
@@ -87,6 +82,7 @@ public class BB : MonoBehaviour
                 if (outlineImage && !outlineImage.gameObject.activeSelf)
                 {
                     outlineImage.gameObject.SetActive(true);
+                    outlineImage.color = Color.yellow;
                 }
                 break;
             case Att.Normal:
@@ -198,27 +194,6 @@ public class BB : MonoBehaviour
                 break;
             case ActionType.ResetDwell:
                 ResetColor();
-                break;
-            case ActionType.TestUI:
-                if (testScene != null)
-                {
-                    if (isNext)
-                    {
-                        testScene.Pro();
-                    }
-                    else if (isDelete)
-                    {
-                        testScene.RemoveDigitLast();
-                    }
-                    else
-                    {
-                        testScene.AddDigit(value);
-                    }
-                }
-                else
-                {
-                    Debug.LogWarning("TestScene reference is not assigned in the inspector.");
-                }
                 break;
         }
     }
