@@ -15,7 +15,7 @@ public class TestUI : MonoBehaviour
     public TMP_Text value;
     
     private string currentText = "";
-
+#region Unity Lifecycle
     private void Awake() 
     {
         // Clear text on start
@@ -26,7 +26,9 @@ public class TestUI : MonoBehaviour
     {
         PositionCanvasFront();
     }
+#endregion
 
+#region UI Positioning
     public void PositionCanvasFront()
     {
         if (cam == null) cam = Camera.main;
@@ -43,13 +45,17 @@ public class TestUI : MonoBehaviour
             transform.rotation = cam.transform.rotation;
         }
     }
+#endregion
 
+#region UI Update
     void UpdateDisplay()
     {
         if (value != null)
             value.text = currentText;
     }
+#endregion
 
+#region UI Input
     public void AddDigit(string digit)
     {
         currentText += digit;
@@ -69,4 +75,5 @@ public class TestUI : MonoBehaviour
     {
         MainControl.Instance.GoToNextPhase();
     }
+#endregion
 }
