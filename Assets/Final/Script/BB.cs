@@ -112,6 +112,8 @@ public class BB : MonoBehaviour
     }
 
     #endregion
+
+    #region Hover Events
     public void OnHoverEnter()
     {
         isHovering = true;
@@ -123,6 +125,7 @@ public class BB : MonoBehaviour
         hasTriggered = false;
         ResetColor();
     }
+    #endregion
 
     #region Dell functions
 

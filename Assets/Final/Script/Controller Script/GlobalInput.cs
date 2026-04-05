@@ -20,22 +20,16 @@ public class GlobalInput : MonoBehaviour
     [Header("Dwell Settings")]
     public float dwellTime = 2.5f;
     [Header("Flicker Settings")]
-    public float flickerDuration = 3f;
+    public float flickerDuration = 2f;
     public float flickerHz = 15f;
 
-
-    [Header("Frequency Initialization")]
-    public float initDelay = 0.5f;
-    [Header("Fade Settings")]
-    public float fadeDurationFactor = 0.2f;
-
     [Header("Border Colors")]
-    public Color idleColor = new Color32(0xFF, 0xFF, 0xFF, 0xFF); // FFFFFF
-    public Color midColor = new Color32(0xFF, 0xE1, 0x35, 0xFF); // FFE135
-    public Color activeColor = new Color32(0x00, 0xFF, 0x00, 0xFF); // 00FF00
+    public Color idleColor = new Color32(255, 255, 255, 255); // white
+    public Color midColor = new Color32(255, 165, 0, 255); // orange
+    public Color activeColor = new Color32(0, 255, 0, 255); // green
 
     [Header("Flicker Colors")]
-    public Color flickerOn = new Color32(0x00, 0x00, 0x00, 0x00);
+    public Color flickerOn = new Color32(0, 0, 0, 0); // black
 
 
 }
