@@ -8,6 +8,11 @@ public class TestScene : MonoBehaviour
     public TMP_Text value;
     private string currentText = "";
 
+    void Start()
+    {
+        UpdateDisplay();
+    }
+
     void UpdateDisplay()
     {
         value.text = currentText;
@@ -29,6 +34,7 @@ public class TestScene : MonoBehaviour
 
     public void Pro()
     {
-        
+        // Add to go to next scene here
+
     }
 }

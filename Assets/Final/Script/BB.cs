@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -48,13 +49,13 @@ public class BB : MonoBehaviour
     public string value;
     public bool isDelete;
     public bool isNext;
-
+    public TestUI testUI;
     // Button Actions
     public enum ActionType
     {
         None, //Headings
         Flicker,  // Flicker
-        ResetDwell, // Dwell Setting
+        ResetDwell // Dwell Setting
     }
 
     #region Unity Lifecycle
@@ -107,20 +108,6 @@ public class BB : MonoBehaviour
         }
     }
 
-    #endregion
-
-    #region Hover Events
-    public void OnHoverEnter()
-    {
-        isHovering = true;
-    }
-
-    public void OnHoverExit()
-    {
-        isHovering = false;
-        hasTriggered = false;
-        ResetColor();
-    }
     #endregion
 
     #region Dell functions
@@ -178,7 +165,6 @@ public class BB : MonoBehaviour
     }
 
     #endregion
-
 
     #region Action
     public void Execution(ActionType action)
@@ -250,5 +236,63 @@ public class BB : MonoBehaviour
 
     #endregion
 
+    #region TestUI update
+
+    public void TestUIControl()
+    {
+        if (isNext)
+        {
+            NextPhase();
+        }
+        
+        else if (isDelete)
+        {
+            DeleteValue();
+        }
+
+        else
+        {
+            AddValue();
+        }
+    }
+    private void AddValue()
+    {
+        if (testUI != null)
+        {
+            testUI.AddDigit(value);
+        }
+    }
+
+    private void DeleteValue()
+    {
+        if (testUI != null)
+        {
+            testUI.RemoveDigitLast  ();
+        }
+    }
+
+    private void NextPhase()
+    {
+        if (testUI != null)
+        {
+            testUI.NextPhase();
+        }
+    }
+
+    #endregion
+
+    #region Hover Events
+    public void OnHoverEnter()
+    {
+        isHovering = true;
+    }
+
+    public void OnHoverExit()
+    {
+        isHovering = false;
+        hasTriggered = false;
+        ResetColor();
+    }
+    #endregion
 
 }

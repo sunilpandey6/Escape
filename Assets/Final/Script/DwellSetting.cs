@@ -2,13 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 public class DwellSetting : MonoBehaviour
 {
     // Start is called before the first frame update
 public TMP_Text valueText;
 
-    private void Awake()
+    private void Start()
     {
         updateValue();
     }
