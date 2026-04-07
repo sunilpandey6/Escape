@@ -5,12 +5,6 @@ using UnityEngine.UI;
 
 public class Demo3D : MonoBehaviour
 {
-    [Header("Main Canvas Positioning")]
-    public Camera cam;
-    public float distance = 2f;
-    public float horizontalOffset = 0f;
-    public float verticalOffset = 0f;
-
     [Header("Door Reference")]
     [SerializeField] private GameObject Door1;
     [SerializeField] private GameObject Door2;
@@ -21,7 +15,7 @@ public class Demo3D : MonoBehaviour
     [SerializeField] private bool hasTriggered = false;
 
     [Header("Outline Reference")]
-    private Outline outline;
+    [SerializeField] private Outline outline;
 
     #region Unity Lifecycle
 
@@ -33,18 +27,18 @@ public class Demo3D : MonoBehaviour
 
     public void PositionCanvasFront()
     {
-        if (cam == null) cam = Camera.main;
+        if (GlobalInput.Instance.cam == null) return;
 
-        if (cam != null)
+        if (GlobalInput.Instance.cam != null)
         {
             // Position in front of camera once
-            transform.position = cam.transform.position
-                + cam.transform.right * horizontalOffset
-                + cam.transform.up * verticalOffset
-                + cam.transform.forward * distance;
+            transform.position = GlobalInput.Instance.cam.transform.position
+                + GlobalInput.Instance.cam.transform.right * GlobalInput.Instance.horizontalOffset
+                + GlobalInput.Instance.cam.transform.up * GlobalInput.Instance.verticalOffset
+                + GlobalInput.Instance.cam.transform.forward * GlobalInput.Instance.distance;
 
             // Make UI face the camera once
-            transform.rotation = cam.transform.rotation;
+            transform.rotation = GlobalInput.Instance.cam.transform.rotation;
         }
     }
     #endregion
@@ -116,6 +110,8 @@ public class Demo3D : MonoBehaviour
         outline.enabled = false;
         isHovering = false;
         hasTriggered = false;
+        outline.OutlineColor = GlobalInput.Instance.idleColor;
+        outline.enabled = false;
     }
     #endregion
 

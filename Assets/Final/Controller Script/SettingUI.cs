@@ -4,13 +4,7 @@ using TMPro;
 using UnityEngine;
 
 public class SettingUI : MonoBehaviour
-{
-    [Header("Main Canvas Positioning")]
-    public Camera cam;
-    public float distance = 2f;
-    public float horizontalOffset = 0f;
-    public float verticalOffset = 0f;
-    
+{  
     [Header("UI Panels")]
     public GameObject DwellPanel;
     public GameObject FlickerPanel;
@@ -32,18 +26,18 @@ public class SettingUI : MonoBehaviour
 
     public void PositionCanvasFront()
     {
-        if (cam == null) cam = Camera.main;
+        if (GlobalInput.Instance.cam == null) return;
 
-        if (cam != null)
+        if (GlobalInput.Instance.cam != null)
         {
             // Position in front of camera once
-            transform.position = cam.transform.position 
-                + cam.transform.right * horizontalOffset 
-                + cam.transform.up * verticalOffset 
-                + cam.transform.forward * distance;
+            transform.position = GlobalInput.Instance.cam.transform.position 
+                + GlobalInput.Instance.cam.transform.right * GlobalInput.Instance.horizontalOffset 
+                + GlobalInput.Instance.cam.transform.up * GlobalInput.Instance.verticalOffset 
+                + GlobalInput.Instance.cam.transform.forward * GlobalInput.Instance.distance;
 
             // Make UI face the camera once
-            transform.rotation = cam.transform.rotation;
+            transform.rotation = GlobalInput.Instance.cam.transform.rotation;
         }
     }
     #endregion

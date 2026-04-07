@@ -1,7 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
-using UnityEngine;public class MainControl : MonoBehaviour
+using UnityEngine;
+public class MainControl : MonoBehaviour
 {
     public static MainControl Instance { get; private set; }
 
