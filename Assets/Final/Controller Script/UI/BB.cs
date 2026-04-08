@@ -28,6 +28,9 @@ public class BB : MonoBehaviour
     [SerializeField] private RectTransform borderRect;
     [SerializeField] private RectTransform buttonRect;
 
+
+    private Material runtimeMaterial;
+
     [Header("Internal Value")]
     public bool isHovering = false;
     [SerializeField] private bool hasTriggered = false;
@@ -64,6 +67,10 @@ public class BB : MonoBehaviour
         if(outlineImage)
         {
             outlineRect.sizeDelta = buttonRect.sizeDelta + new Vector2(outlineSize * 2, outlineSize * 2);
+            runtimeMaterial = Instantiate(outlineImage.material);
+            outlineImage.material = runtimeMaterial;
+            ApplyGlobalColors();
+
             outlineImage.gameObject.SetActive(false);
         }
         if (borderImage)
@@ -73,6 +80,12 @@ public class BB : MonoBehaviour
         if (!button)
             button = GetComponent<Button>();
 
+    }
+    void ApplyGlobalColors()
+    {
+        runtimeMaterial.SetColor("_IdleColor", GlobalInput.Instance.idleColor);
+        runtimeMaterial.SetColor("_MidColor", GlobalInput.Instance.midColor);
+        runtimeMaterial.SetColor("_ActiveColor", GlobalInput.Instance.activeColor);
     }
 
     public void Update()
@@ -123,16 +136,22 @@ public class BB : MonoBehaviour
         {
             dwellTimer += Time.deltaTime;
             float progress = Mathf.Clamp01(dwellTimer / GlobalInput.Instance.dwellTime);
-            if (progress < 0.5f)
-            {
-                float t = progress / 0.5f;
-                outlineImage.color = Color.Lerp(GlobalInput.Instance.idleColor, GlobalInput.Instance.midColor, t);
-            }
-            else
-            {
-                float t = (progress - 0.5f) / 0.5f;
-                outlineImage.color = Color.Lerp(GlobalInput.Instance.midColor, GlobalInput.Instance.activeColor, t);
-            }
+            // if (progress < 0.5f)
+            // {
+            //     float t = progress / 0.5f;
+            //     //outlineImage.color = Color.Lerp(GlobalInput.Instance.idleColor, GlobalInput.Instance.midColor, t);
+            //     material.SetFloat("_Progress", progress);
+            // }
+            // else
+            // {
+            //     float t = (progress - 0.5f) / 0.5f;
+            //     //outlineImage.color = Color.Lerp(GlobalInput.Instance.midColor, GlobalInput.Instance.activeColor, t);
+            //     material.SetFloat("_Progress", progress);
+            // }
+
+            // Send progress to shader
+            runtimeMaterial.SetFloat("_Progress", progress);
+
             if (dwellTimer >= GlobalInput.Instance.dwellTime && !hasTriggered)
             {
                 hasTriggered = true;
@@ -159,7 +178,8 @@ public class BB : MonoBehaviour
         dwellTimer = 0f;
         if (outlineImage)
         {
-            outlineImage.color = GlobalInput.Instance.idleColor;
+            //outlineImage.color = GlobalInput.Instance.idleColor;
+            runtimeMaterial.SetFloat("_Progress", 0f);
             outlineImage.gameObject.SetActive(false);
         }
     }

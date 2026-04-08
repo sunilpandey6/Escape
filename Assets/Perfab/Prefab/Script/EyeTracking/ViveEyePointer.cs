@@ -8,7 +8,7 @@ public class ViveEyePointer : MonoBehaviour
 
     private GameObject currentObject;
 
-    [SerializeField] private UIFollowCamera uiFollowCamera;
+    //[SerializeField] private UIFollowCamera uiFollowCamera;
 
     //void Start()
     //{
