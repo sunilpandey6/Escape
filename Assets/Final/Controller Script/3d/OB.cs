@@ -78,7 +78,7 @@ public class OB : MonoBehaviour
     }
  #endregion
 
- #region Dwell Complete
+#region Dwell Complete
     private void OnDwellComplete()
     {
         Debug.Log($"{gameObject.name} dwell complete! Initiating flicker...");

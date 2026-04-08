@@ -21,7 +21,7 @@ public class BB : MonoBehaviour
     }
     [Header("Button as header")]
     [SerializeField] private Image outlineImage;
-    [SerializeField] private readonly Image borderImage;
+    [SerializeField] private Image borderImage;
     [SerializeField] private Image buttonImage;
 
     [SerializeField] private RectTransform outlineRect;

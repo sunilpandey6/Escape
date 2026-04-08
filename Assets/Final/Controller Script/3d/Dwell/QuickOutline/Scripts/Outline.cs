@@ -33,8 +33,6 @@ public class Outline : MonoBehaviour
         outlineMaskMaterial = Instantiate(Resources.Load<Material>("Materials/OutlineMask"));
         outlineFillMaterial = Instantiate(Resources.Load<Material>("Materials/OutlineFill"));
 
-        ApplyGlobalColors();
-
         outlineMaskMaterial.name = "OutlineMask (Instance)";
         outlineFillMaterial.name = "OutlineFill (Instance)";
 
