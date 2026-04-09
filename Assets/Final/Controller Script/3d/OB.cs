@@ -4,6 +4,7 @@ using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Outline))]
+[RequireComponent(typeof(Flicker))]
 public class OB : MonoBehaviour
 {
     [Header("References")]
@@ -20,19 +21,18 @@ public class OB : MonoBehaviour
     [SerializeField] private ActionType selectedAction = ActionType.None;
     [SerializeField] private ActionType selectedAction1 = ActionType.None;
 
+    [Header("Outline")]
     [SerializeField] private Outline outline;
+    [SerializeField] private Flicker flicker;
+    
+    [Header("Dwell")]
     [SerializeField] private float dwellTimer = 0f;
     [SerializeField] private bool isHovering = false;
     [SerializeField] private bool hasTriggered = false;
     [SerializeField] private bool isFlickering = false;
 
-    private void Awake()
-    {
-        outline = GetComponent<Outline>();
-        outline.ResetOutline(); // Reset shader progress
-    }
 
-    private void OnEnable()
+    private void Start()
     {
         outline.ApplyGlobalColors();
     }
@@ -40,13 +40,12 @@ public class OB : MonoBehaviour
     private void Update()
     {
         if (!isHovering || hasTriggered || isFlickering) return;
-
         // Increment dwell timer
         dwellTimer += Time.deltaTime;
 
         // Update shader progress
         float progress = Mathf.Clamp01(dwellTimer / GlobalInput.Instance.dwellTime);
-        outline.dwellTimer = dwellTimer;
+        outline.Updatetimer(progress);
         
         outline.UpdateMaterialProperties();
 
@@ -54,8 +53,10 @@ public class OB : MonoBehaviour
         if (!hasTriggered && progress >= 1f)
         {
             hasTriggered = true;
+
             OnDwellComplete();
         }
+
     }
 
 #region Pointer Event
@@ -74,6 +75,7 @@ public class OB : MonoBehaviour
     {
         isHovering = false;
         dwellTimer = 0f;
+        hasTriggered = false;
         outline.ResetOutline();
     }
  #endregion
@@ -88,29 +90,9 @@ public class OB : MonoBehaviour
     private IEnumerator FlickerAndExecute()
     {
         isFlickering = true;
-        
-        float elapsed = 0f;
-        float duration = GlobalInput.Instance.flickerDuration;
-        float hz = GlobalInput.Instance.flickerHz;
+        flicker.StartFlicker();
 
-        while (elapsed < duration)
-        {
-            // Flash outline by enabling/disabling
-            if ((elapsed * hz) % 1f < 0.5f)
-            {
-                outline.enabled = false;
-            }
-            else
-            {
-                outline.enabled = true;
-            }
-
-            yield return null;
-            elapsed += Time.deltaTime;
-        }
-
-        // Ensure outline is restored and reset cleanly
-        outline.enabled = true;
+        yield return new WaitForSeconds(GlobalInput.Instance.flickerDuration);
         outline.ResetOutline();
         isFlickering = false;
 

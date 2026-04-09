@@ -349,7 +349,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &16974428
 Transform:
   m_ObjectHideFlags: 0
@@ -381,10 +381,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Door1: {fileID: 1890253164}
   Door2: {fileID: 1092396225}
-  dwellTimer: 0
-  isHovering: 0
-  hasTriggered: 0
-  outline: {fileID: 1890253166}
 --- !u!1 &17587846
 GameObject:
   m_ObjectHideFlags: 0
@@ -562,6 +558,7 @@ MonoBehaviour:
   button: {fileID: 18128271}
   attribute: 3
   outlineImage: {fileID: 135951642}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 727205803}
   outlineRect: {fileID: 135951641}
   borderRect: {fileID: 1611732198}
@@ -831,7 +828,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 27c5e5a0d3a884eadb15a754cee4e73a, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -1457,7 +1454,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 27c5e5a0d3a884eadb15a754cee4e73a, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -2118,6 +2115,7 @@ MonoBehaviour:
   button: {fileID: 281092132}
   attribute: 1
   outlineImage: {fileID: 1843254686}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 1416598492}
   outlineRect: {fileID: 1843254685}
   borderRect: {fileID: 328032846}
@@ -2316,6 +2314,7 @@ MonoBehaviour:
   button: {fileID: 294649464}
   attribute: 1
   outlineImage: {fileID: 1823100519}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 1927098984}
   outlineRect: {fileID: 1823100518}
   borderRect: {fileID: 47028341}
@@ -2632,6 +2631,7 @@ MonoBehaviour:
   button: {fileID: 318501523}
   attribute: 1
   outlineImage: {fileID: 17587848}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 1829809952}
   outlineRect: {fileID: 17587847}
   borderRect: {fileID: 660830461}
@@ -2999,6 +2999,7 @@ MonoBehaviour:
   button: {fileID: 354872677}
   attribute: 1
   outlineImage: {fileID: 1278840546}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 628652689}
   outlineRect: {fileID: 1278840545}
   borderRect: {fileID: 1750766381}
@@ -3278,7 +3279,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 27c5e5a0d3a884eadb15a754cee4e73a, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -3482,6 +3483,7 @@ MonoBehaviour:
   button: {fileID: 431645555}
   attribute: 1
   outlineImage: {fileID: 1238188806}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 423927451}
   outlineRect: {fileID: 1238188805}
   borderRect: {fileID: 1542191962}
@@ -3593,7 +3595,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &439279618
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3711,6 +3713,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1767192433, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1501215966}
+    - targetCorrespondingSourceObject: {fileID: 1767192433, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1501215967}
     - targetCorrespondingSourceObject: {fileID: 202364687, guid: f6336ac4ac8b4d34bc5072418cdc62a0, type: 3}
       insertIndex: -1
       addedObject: {fileID: 924867886}
@@ -4296,11 +4301,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   outlineMode: 1
-  outlineColor: {r: 1, g: 1, b: 1, a: 1}
   outlineWidth: 10
-  precomputeOutline: 0
-  bakeKeys: []
-  bakeValues: []
+  dwellTimer: 0
 --- !u!65 &538507879
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4499,6 +4501,7 @@ MonoBehaviour:
   button: {fileID: 573449526}
   attribute: 1
   outlineImage: {fileID: 33523174}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 1465816546}
   outlineRect: {fileID: 33523173}
   borderRect: {fileID: 2054393164}
@@ -4651,6 +4654,7 @@ MonoBehaviour:
   button: {fileID: 596684115}
   attribute: 0
   outlineImage: {fileID: 738435876}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 219087022}
   outlineRect: {fileID: 738435875}
   borderRect: {fileID: 2046700135}
@@ -5505,6 +5509,7 @@ MonoBehaviour:
   button: {fileID: 649406579}
   attribute: 1
   outlineImage: {fileID: 1523929036}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 1082069708}
   outlineRect: {fileID: 1523929035}
   borderRect: {fileID: 1124945517}
@@ -5935,6 +5940,7 @@ MonoBehaviour:
   button: {fileID: 701513485}
   attribute: 1
   outlineImage: {fileID: 1379902587}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 1237520734}
   outlineRect: {fileID: 1379902586}
   borderRect: {fileID: 1591716509}
@@ -6040,8 +6046,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 709712319}
-  - component: {fileID: 709712318}
-  - component: {fileID: 709712316}
+  - component: {fileID: 709712322}
+  - component: {fileID: 709712321}
   - component: {fileID: 709712320}
   m_Layer: 0
   m_Name: MainController
@@ -6050,43 +6056,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &709712316
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 709712315}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9bbacf1347364f4d934a55d274e2a6a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dwellTime: 2.5
-  flickerDuration: 2
-  flickerHz: 15
-  idleColor: {r: 1, g: 1, b: 1, a: 1}
-  midColor: {r: 1, g: 0.64705884, b: 0, a: 1}
-  activeColor: {r: 0, g: 1, b: 0, a: 1}
-  flickerOn: {r: 0, g: 0, b: 0, a: 0}
-  cam: {fileID: 678634238}
-  distance: 2
-  horizontalOffset: 0
-  verticalOffset: 0
---- !u!114 &709712318
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 709712315}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b5d5dc89587d24ea58d8a3fb6648d00a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentExperiment: 0
-  currentPhase: 0
 --- !u!4 &709712319
 Transform:
   m_ObjectHideFlags: 0
@@ -6111,6 +6080,29 @@ MonoBehaviour:
   m_GameObject: {fileID: 709712315}
   m_Enabled: 1
   m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9bbacf1347364f4d934a55d274e2a6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dwellTime: 2.5
+  flickerDuration: 2
+  flickerHz: 15
+  idleColor: {r: 1, g: 1, b: 1, a: 1}
+  midColor: {r: 1, g: 0.64705884, b: 0, a: 1}
+  activeColor: {r: 0, g: 1, b: 0, a: 1}
+  flickerOn: {r: 0, g: 0, b: 0, a: 0}
+  cam: {fileID: 678634238}
+  distance: 2
+  horizontalOffset: 0
+  verticalOffset: 0
+--- !u!114 &709712321
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 709712315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b8309ad5e54fd49bd842f657afef93b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
@@ -6118,6 +6110,20 @@ MonoBehaviour:
   testUIObject: {fileID: 1436206242}
   demo3DObject: {fileID: 16974426}
   test3DObject: {fileID: 176839284}
+--- !u!114 &709712322
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 709712315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5d5dc89587d24ea58d8a3fb6648d00a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentExperiment: 0
+  currentPhase: 2
 --- !u!1 &716922504
 GameObject:
   m_ObjectHideFlags: 0
@@ -6681,6 +6687,9 @@ PrefabInstance:
       addedObject: {fileID: 1890253166}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8eede18814317d643a524e96d30ed88b, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 1890253170}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8eede18814317d643a524e96d30ed88b, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 1890253169}
   m_SourcePrefab: {fileID: 100100000, guid: 8eede18814317d643a524e96d30ed88b, type: 3}
 --- !u!1 &811743853
@@ -6996,6 +7005,7 @@ MonoBehaviour:
   button: {fileID: 919733122}
   attribute: 1
   outlineImage: {fileID: 1306585909}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 53679023}
   outlineRect: {fileID: 1306585908}
   borderRect: {fileID: 1029684495}
@@ -7597,7 +7607,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 27c5e5a0d3a884eadb15a754cee4e73a, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -7725,6 +7735,7 @@ MonoBehaviour:
   button: {fileID: 958575805}
   attribute: 1
   outlineImage: {fileID: 556589815}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 1256342484}
   outlineRect: {fileID: 556589814}
   borderRect: {fileID: 1658113738}
@@ -8150,6 +8161,7 @@ MonoBehaviour:
   button: {fileID: 988205404}
   attribute: 1
   outlineImage: {fileID: 444707139}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 1671287283}
   outlineRect: {fileID: 444707138}
   borderRect: {fileID: 1337339471}
@@ -8529,6 +8541,7 @@ MonoBehaviour:
   button: {fileID: 1039649691}
   attribute: 0
   outlineImage: {fileID: 172793650}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 1113048574}
   outlineRect: {fileID: 172793649}
   borderRect: {fileID: 1431833584}
@@ -9775,7 +9788,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 27c5e5a0d3a884eadb15a754cee4e73a, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -9909,7 +9922,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1232751065
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10057,7 +10070,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 27c5e5a0d3a884eadb15a754cee4e73a, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -10450,6 +10463,7 @@ MonoBehaviour:
   button: {fileID: 1324747717}
   attribute: 1
   outlineImage: {fileID: 397201351}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 346115119}
   outlineRect: {fileID: 397201350}
   borderRect: {fileID: 90377878}
@@ -11121,6 +11135,7 @@ MonoBehaviour:
   button: {fileID: 1367620770}
   attribute: 2
   outlineImage: {fileID: 1226801184}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 537038956}
   outlineRect: {fileID: 1226801183}
   borderRect: {fileID: 57942542}
@@ -11254,7 +11269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 27c5e5a0d3a884eadb15a754cee4e73a, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -11907,7 +11922,50 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rayDistance: 50
-  uiFollowCamera: {fileID: 0}
+--- !u!114 &1501215967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1501215965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_AllowHDROutput: 1
+  m_UseScreenCoordOverride: 0
+  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_Version: 2
+  m_TaaSettings:
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
 --- !u!1 &1523929034
 GameObject:
   m_ObjectHideFlags: 0
@@ -12371,6 +12429,7 @@ MonoBehaviour:
   button: {fileID: 1534617992}
   attribute: 1
   outlineImage: {fileID: 1808496838}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 1524446391}
   outlineRect: {fileID: 1808496837}
   borderRect: {fileID: 877602300}
@@ -13267,6 +13326,7 @@ MonoBehaviour:
   button: {fileID: 1622393792}
   attribute: 1
   outlineImage: {fileID: 1548971734}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 1541426258}
   outlineRect: {fileID: 1548971733}
   borderRect: {fileID: 1959995194}
@@ -13479,7 +13539,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 27c5e5a0d3a884eadb15a754cee4e73a, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -13607,6 +13667,7 @@ MonoBehaviour:
   button: {fileID: 1653500868}
   attribute: 1
   outlineImage: {fileID: 1375559942}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 1529833315}
   outlineRect: {fileID: 1375559941}
   borderRect: {fileID: 2129807684}
@@ -14049,6 +14110,7 @@ MonoBehaviour:
   button: {fileID: 1688527858}
   attribute: 1
   outlineImage: {fileID: 1326248543}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 647817678}
   outlineRect: {fileID: 1326248542}
   borderRect: {fileID: 2100449538}
@@ -14247,6 +14309,7 @@ MonoBehaviour:
   button: {fileID: 1689516182}
   attribute: 1
   outlineImage: {fileID: 957514324}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 1415703892}
   outlineRect: {fileID: 957514323}
   borderRect: {fileID: 976903666}
@@ -14445,6 +14508,7 @@ MonoBehaviour:
   button: {fileID: 1695215839}
   attribute: 1
   outlineImage: {fileID: 612364633}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 171002951}
   outlineRect: {fileID: 612364632}
   borderRect: {fileID: 2005307414}
@@ -15256,7 +15320,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 27c5e5a0d3a884eadb15a754cee4e73a, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -15384,6 +15448,7 @@ MonoBehaviour:
   button: {fileID: 1817220710}
   attribute: 1
   outlineImage: {fileID: 1642417397}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 1868680218}
   outlineRect: {fileID: 1642417396}
   borderRect: {fileID: 1228795503}
@@ -15529,7 +15594,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: 27c5e5a0d3a884eadb15a754cee4e73a, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -15869,17 +15934,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1890253164}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   outlineMode: 1
-  outlineColor: {r: 1, g: 1, b: 1, a: 1}
   outlineWidth: 10
-  precomputeOutline: 0
-  bakeKeys: []
-  bakeValues: []
+  dwellTimer: 0
 --- !u!4 &1890253167 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 8eede18814317d643a524e96d30ed88b, type: 3}
@@ -15923,9 +15985,9 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 16974429}
-          m_TargetAssemblyTypeName: Demo3D, Assembly-CSharp
-          m_MethodName: OnHoverEnter
+        - m_Target: {fileID: 1890253170}
+          m_TargetAssemblyTypeName: OB, Assembly-CSharp
+          m_MethodName: StartGaze
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -15939,9 +16001,9 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 16974429}
-          m_TargetAssemblyTypeName: Demo3D, Assembly-CSharp
-          m_MethodName: OnHoverExit
+        - m_Target: {fileID: 1890253170}
+          m_TargetAssemblyTypeName: OB, Assembly-CSharp
+          m_MethodName: StopGaze
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
@@ -15951,6 +16013,26 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
+--- !u!114 &1890253170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1890253164}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6ed2d8e4b73343769e821f6a9799fa3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  demoScene: {fileID: 16974429}
+  selectedAction: 1
+  selectedAction1: 0
+  outline: {fileID: 0}
+  dwellTimer: 0
+  isHovering: 0
+  hasTriggered: 0
+  isFlickering: 0
 --- !u!1 &1927098982
 GameObject:
   m_ObjectHideFlags: 0
@@ -17034,6 +17116,7 @@ MonoBehaviour:
   button: {fileID: 2093350396}
   attribute: 1
   outlineImage: {fileID: 1832001283}
+  borderImage: {fileID: 0}
   buttonImage: {fileID: 1326673917}
   outlineRect: {fileID: 1832001282}
   borderRect: {fileID: 1339930232}

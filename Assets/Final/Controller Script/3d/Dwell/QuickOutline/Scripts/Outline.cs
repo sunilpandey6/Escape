@@ -30,7 +30,12 @@ public class Outline : MonoBehaviour
     {
         renderers = GetComponentsInChildren<Renderer>();
 
-        outlineMaskMaterial = Instantiate(Resources.Load<Material>("Materials/OutlineMask"));
+        
+    }
+
+    void OnEnable()
+    {
+            outlineMaskMaterial = Instantiate(Resources.Load<Material>("Materials/OutlineMask"));
         outlineFillMaterial = Instantiate(Resources.Load<Material>("Materials/OutlineFill"));
 
         outlineMaskMaterial.name = "OutlineMask (Instance)";
@@ -39,6 +44,11 @@ public class Outline : MonoBehaviour
         LoadSmoothNormals();
         ApplyMaterials();
     }
+    
+    public void Updatetimer(float progress)
+    {
+        outlineFillMaterial.SetFloat("_Progress", progress);
+    }
 
     public void ApplyGlobalColors()
     {
@@ -46,23 +56,23 @@ public class Outline : MonoBehaviour
         outlineFillMaterial.SetColor("_MidColor", GlobalInput.Instance.midColor);
         outlineFillMaterial.SetColor("_ActiveColor", GlobalInput.Instance.activeColor);
     }
-    void Update()
-    {
-        dwellTimer += Time.deltaTime;
+    // void Update()
+    // {
+    //     dwellTimer += Time.deltaTime;
 
-        float progress = Mathf.Clamp01(dwellTimer / GlobalInput.Instance.dwellTime);
+    //     float progress = Mathf.Clamp01(dwellTimer / GlobalInput.Instance.dwellTime);
 
-        // Send progress to shader
-        outlineFillMaterial.SetFloat("_Progress", progress);
+    //     // Send progress to shader
+    //     outlineFillMaterial.SetFloat("_Progress", progress);
 
-        // Update colors from GlobalInput
-        outlineFillMaterial.SetColor("_IdleColor", GlobalInput.Instance.idleColor);
-        outlineFillMaterial.SetColor("_MidColor", GlobalInput.Instance.midColor);
-        outlineFillMaterial.SetColor("_ActiveColor", GlobalInput.Instance.activeColor);
+    //     // Update colors from GlobalInput
+    //     outlineFillMaterial.SetColor("_IdleColor", GlobalInput.Instance.idleColor);
+    //     outlineFillMaterial.SetColor("_MidColor", GlobalInput.Instance.midColor);
+    //     outlineFillMaterial.SetColor("_ActiveColor", GlobalInput.Instance.activeColor);
 
-        // Apply width + mode
-        UpdateMaterialProperties();
-    }
+    //     // Apply width + mode
+    //     UpdateMaterialProperties();
+    // }
 
     void ApplyMaterials()
     {
@@ -134,11 +144,12 @@ public class Outline : MonoBehaviour
     {
         foreach (var meshFilter in GetComponentsInChildren<MeshFilter>())
         {
-            if (!registeredMeshes.Add(meshFilter.sharedMesh))
+            Mesh mesh = meshFilter.mesh;
+            if (!registeredMeshes.Add(mesh))
                 continue;
 
-            var smoothNormals = SmoothNormals(meshFilter.sharedMesh);
-            meshFilter.sharedMesh.SetUVs(3, smoothNormals);
+            var smoothNormals = SmoothNormals(mesh);
+            mesh.SetUVs(3, smoothNormals);
         }
     }
 
