@@ -99,8 +99,10 @@ Shader "Custom/FlickerUIShader"
             fixed4 frag(v2f i) : SV_Target
             {
                 float t = _Time.y - _FlickerStartTime;
+                // if ( <= 0.0 || t >= _FlickerDuration) return float4(_IdleColor.rgb, _IdleColor.a);
+                if (_FlickerStartTime < 0.0) return float4(_IdleColor.rgb, _IdleColor.a);
                 if (t <= 0.0 || t >= _FlickerDuration) return float4(_IdleColor.rgb, _IdleColor.a);
-                if (t <= 0.0) return float4(_IdleColor.rgb, _IdleColor.a);
+
                 float f = flickerSmooth(t);
                 f = saturate(f * _FlickerIntensity); // clamp 0..1
                 f = f > 0.5 ? 1.0 : 0.0;             // sharp on/off for SSVEP

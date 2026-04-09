@@ -19,6 +19,16 @@ public class BB : MonoBehaviour
         FlickerDemo
 
     }
+    enum State
+    {
+        Idle,
+        Hovering,
+        Dwelling,
+        Flickering,
+        
+    }
+    private State currentState = State.Idle;
+
     [Header("Button as header")]
     [SerializeField] private Image outlineImage;
     [SerializeField] private Image borderImage;
@@ -62,6 +72,7 @@ public class BB : MonoBehaviour
     #region Unity Lifecycle
     public void Awake()
     {
+
         if(outlineImage)
         {
             outlineRect.sizeDelta = buttonRect.sizeDelta + new Vector2(outlineSize * 2, outlineSize * 2);
@@ -96,6 +107,7 @@ public class BB : MonoBehaviour
 
     void ApplyFlickerColors()
     {
+        runtimeMaterialFlicker.SetFloat("_FlickerStartTime", -1f);
         runtimeMaterialFlicker.SetColor("_IdleColor", GlobalInput.Instance.idleColor);
         runtimeMaterialFlicker.SetColor("_FlickerColor", GlobalInput.Instance.flickerOn);
         runtimeMaterialFlicker.SetFloat("_FlickerHz", GlobalInput.Instance.flickerHz);
@@ -107,11 +119,7 @@ public class BB : MonoBehaviour
         switch (attribute)
         {
             case Att.None:
-                if (outlineImage && !outlineImage.gameObject.activeSelf)
-                {
-                    outlineImage.gameObject.SetActive(true);
-                    outlineImage.color = Color.yellow;
-                }
+                HandleNone();
                 break;
             case Att.Normal:
                 if (isHovering && !isFlickering)
@@ -120,21 +128,56 @@ public class BB : MonoBehaviour
                 }
                 break;
             case Att.DwellDemo:
-                if (isHovering && !isFlickering)
-                {
-                    ChangeColor();
-                }
+                HandleDwell();
                 break;
             case Att.FlickerDemo:
-                if (isHovering && !isFlickering)
-                {
-                    FF();
-                }
+                HandleFlickerDemo();
                 break;
            
         }
     }
 
+    #endregion
+
+    #region state control
+    void HandleNone()
+    {
+        if (outlineImage && !outlineImage.gameObject.activeSelf)
+        {
+            outlineImage.gameObject.SetActive(true);
+            outlineImage.color = Color.yellow;
+        }
+    }
+
+    void HandleDwell()
+    {
+        if (currentState == State.Hovering || currentState == State.Dwelling)
+        {
+            currentState = State.Dwelling;
+
+            dwellTimer += Time.deltaTime;
+            float progress = Mathf.Clamp01(dwellTimer / GlobalInput.Instance.dwellTime);
+            runtimeMaterial.SetFloat("_Progress", progress);
+
+            if (progress >= 1f && currentState != State.Flickering)
+            {
+                currentState = State.Flickering;
+
+                FF(); // start flicker ONCE
+                Execution(selectedAction);
+            }
+        }
+    }
+
+    void HandleFlickerDemo()
+    {
+        if (currentState == State.Hovering)
+        {
+            currentState = State.Flickering;
+            FF(); // ONLY once
+        }
+    }
+    
     #endregion
 
     #region Dell functions
@@ -222,12 +265,22 @@ public class BB : MonoBehaviour
     public void FF()
     {
         //StartCoroutine(Flicker());
-        if (runtimeMaterialFlicker != null)
-        {
-            runtimeMaterialFlicker.SetFloat("_FlickerStartTime", Time.time);
-            isFlickering = true;
-        }
+        if (runtimeMaterialFlicker == null) return;
 
+        runtimeMaterialFlicker.SetFloat("_FlickerStartTime", Time.time);
+        isFlickering = true;
+
+        StartCoroutine(StopFlicker());
+    }
+
+    private IEnumerator StopFlicker()
+    {
+        yield return new WaitForSeconds(GlobalInput.Instance.flickerDuration);
+
+        isFlickering = false;
+
+        // Allow system to reset properly
+        currentState = State.Idle;
     }
 
     private IEnumerator Flicker()
@@ -323,12 +376,19 @@ public class BB : MonoBehaviour
     public void OnHoverEnter()
     {
         isHovering = true;
+
+        if (currentState == State.Idle)
+            currentState = State.Hovering;
     }
 
     public void OnHoverExit()
     {
         isHovering = false;
+
+        currentState = State.Idle;
+        dwellTimer = 0f;
         hasTriggered = false;
+
         ResetColor();
     }
     #endregion
