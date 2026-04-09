@@ -1,6 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
-using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Outline))]
@@ -14,12 +12,12 @@ public class OB : MonoBehaviour
     {
         None,
         DoorSwitch,
+        NextScene,
         FinalScreen
     }
 
     [Header("Door Operations")]
     [SerializeField] private ActionType selectedAction = ActionType.None;
-    [SerializeField] private ActionType selectedAction1 = ActionType.None;
 
     [Header("Outline")]
     [SerializeField] private Outline outline;
@@ -31,46 +29,34 @@ public class OB : MonoBehaviour
     [SerializeField] private bool hasTriggered = false;
     [SerializeField] private bool isFlickering = false;
 
-
     private void Start()
     {
         outline.ApplyGlobalColors();
+        flicker.enabled = false;
     }
 
     private void Update()
     {
         if (!isHovering || hasTriggered || isFlickering) return;
-        // Increment dwell timer
+
         dwellTimer += Time.deltaTime;
-
-        // Update shader progress
         float progress = Mathf.Clamp01(dwellTimer / GlobalInput.Instance.dwellTime);
-        outline.Updatetimer(progress);
-        
-        outline.UpdateMaterialProperties();
 
-        // Trigger action when dwell completes
+        outline.SetProgress(progress);
+
         if (!hasTriggered && progress >= 1f)
         {
             hasTriggered = true;
-
-            OnDwellComplete();
+            StartCoroutine(FlickerAndExecute());
         }
-
     }
 
-#region Pointer Event
-    /// <summary>
-    /// Call this when user starts gazing at the door
-    /// </summary>
+    #region Pointer Event
     public void StartGaze()
     {
         isHovering = true;
     }
 
-    /// <summary>
-    /// Call this when user stops gazing
-    /// </summary>
     public void StopGaze()
     {
         isHovering = false;
@@ -78,47 +64,37 @@ public class OB : MonoBehaviour
         hasTriggered = false;
         outline.ResetOutline();
     }
- #endregion
+    #endregion
 
-#region Dwell Complete
-    private void OnDwellComplete()
-    {
-        Debug.Log($"{gameObject.name} dwell complete! Initiating flicker...");
-        StartCoroutine(FlickerAndExecute());
-    }
-
+    #region Dwell Complete
     private IEnumerator FlickerAndExecute()
     {
         isFlickering = true;
         flicker.StartFlicker();
 
         yield return new WaitForSeconds(GlobalInput.Instance.flickerDuration);
+
         outline.ResetOutline();
         isFlickering = false;
 
-        // Now execute the actions after flickering is done
         ExecuteAction(selectedAction);
-        ExecuteAction(selectedAction1);
     }
 
     private void ExecuteAction(ActionType action)
     {
         switch (action)
         {
-            case ActionType.None:
-                break;
+            case ActionType.None: break;
             case ActionType.DoorSwitch:
-                if (demoScene != null) demoScene.Door2Active();
+                demoScene?.Door2Active();
+                break;
+            case ActionType.NextScene:
+                MainControl.Instance.GoToNextPhase();
                 break;
             case ActionType.FinalScreen:
                 Debug.Log("Final Screen Action Triggered!");
-                // e.g. MainControl.Instance.GoToNextPhase();
                 break;
         }
     }
- #endregion
-
-
-    
-
+    #endregion
 }

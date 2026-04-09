@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -7,7 +6,15 @@ using UnityEngine;
 public class Outline : MonoBehaviour
 {
     private static HashSet<Mesh> registeredMeshes = new HashSet<Mesh>();
+    private static Material cachedMaskMaterial;
+    private static Material cachedFillMaterial;
 
+    private Renderer[] renderers;
+    private MaterialPropertyBlock mpb;
+
+    [SerializeField] private float outlineWidth = 10f;
+    [SerializeField] private Mode outlineMode;
+    
     public enum Mode
     {
         OutlineAll,
@@ -17,126 +24,38 @@ public class Outline : MonoBehaviour
         SilhouetteOnly
     }
 
-    [SerializeField] private Mode outlineMode;
-    [SerializeField, Range(0f, 30f)] private float outlineWidth = 10f;
-
-    private Renderer[] renderers;
-    private Material outlineMaskMaterial;
-    private Material outlineFillMaterial;
-
-    public float dwellTimer = 0f;
- 
     void Awake()
     {
         renderers = GetComponentsInChildren<Renderer>();
-
-        
+        mpb = new MaterialPropertyBlock();
     }
 
     void OnEnable()
     {
-            outlineMaskMaterial = Instantiate(Resources.Load<Material>("Materials/OutlineMask"));
-        outlineFillMaterial = Instantiate(Resources.Load<Material>("Materials/OutlineFill"));
+        if (cachedMaskMaterial == null)
+        {
+            cachedMaskMaterial = Instantiate(Resources.Load<Material>("Materials/OutlineMask"));
+            cachedMaskMaterial.name = "OutlineMask (Instance)";
+        }
 
-        outlineMaskMaterial.name = "OutlineMask (Instance)";
-        outlineFillMaterial.name = "OutlineFill (Instance)";
+        if (cachedFillMaterial == null)
+        {
+            cachedFillMaterial = Instantiate(Resources.Load<Material>("Materials/OutlineFill"));
+            cachedFillMaterial.name = "OutlineFill (Instance)";
+        }
 
-        LoadSmoothNormals();
         ApplyMaterials();
+        LoadSmoothNormals();
     }
-    
-    public void Updatetimer(float progress)
-    {
-        outlineFillMaterial.SetFloat("_Progress", progress);
-    }
-
-    public void ApplyGlobalColors()
-    {
-        outlineFillMaterial.SetColor("_IdleColor", GlobalInput.Instance.idleColor);
-        outlineFillMaterial.SetColor("_MidColor", GlobalInput.Instance.midColor);
-        outlineFillMaterial.SetColor("_ActiveColor", GlobalInput.Instance.activeColor);
-    }
-    // void Update()
-    // {
-    //     dwellTimer += Time.deltaTime;
-
-    //     float progress = Mathf.Clamp01(dwellTimer / GlobalInput.Instance.dwellTime);
-
-    //     // Send progress to shader
-    //     outlineFillMaterial.SetFloat("_Progress", progress);
-
-    //     // Update colors from GlobalInput
-    //     outlineFillMaterial.SetColor("_IdleColor", GlobalInput.Instance.idleColor);
-    //     outlineFillMaterial.SetColor("_MidColor", GlobalInput.Instance.midColor);
-    //     outlineFillMaterial.SetColor("_ActiveColor", GlobalInput.Instance.activeColor);
-
-    //     // Apply width + mode
-    //     UpdateMaterialProperties();
-    // }
 
     void ApplyMaterials()
     {
         foreach (var renderer in renderers)
         {
-            var materials = renderer.sharedMaterials.ToList();
-
-            materials.Add(outlineMaskMaterial);
-            materials.Add(outlineFillMaterial);
-
-            renderer.materials = materials.ToArray();
-        }
-    }
-
-    void OnDisable()
-    {
-        foreach (var renderer in renderers)
-        {
-            var materials = renderer.sharedMaterials.ToList();
-
-            materials.Remove(outlineMaskMaterial);
-            materials.Remove(outlineFillMaterial);
-
-            renderer.materials = materials.ToArray();
-        }
-    }
-
-    void OnDestroy()
-    {
-        Destroy(outlineMaskMaterial);
-        Destroy(outlineFillMaterial);
-    }
-
-    public void UpdateMaterialProperties()
-    {
-        outlineFillMaterial.SetFloat("_OutlineWidth", outlineWidth);
-
-        switch (outlineMode)
-        {
-            case Mode.OutlineAll:
-                outlineMaskMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Always);
-                outlineFillMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Always);
-                break;
-
-            case Mode.OutlineVisible:
-                outlineMaskMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Always);
-                outlineFillMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.LessEqual);
-                break;
-
-            case Mode.OutlineHidden:
-                outlineMaskMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Always);
-                outlineFillMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Greater);
-                break;
-
-            case Mode.OutlineAndSilhouette:
-                outlineMaskMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.LessEqual);
-                outlineFillMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Always);
-                break;
-
-            case Mode.SilhouetteOnly:
-                outlineMaskMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.LessEqual);
-                outlineFillMaterial.SetFloat("_ZTest", (float)UnityEngine.Rendering.CompareFunction.Greater);
-                outlineFillMaterial.SetFloat("_OutlineWidth", 0f);
-                break;
+            var mats = renderer.sharedMaterials.ToList();
+            if (!mats.Contains(cachedMaskMaterial)) mats.Add(cachedMaskMaterial);
+            if (!mats.Contains(cachedFillMaterial)) mats.Add(cachedFillMaterial);
+            renderer.materials = mats.ToArray();
         }
     }
 
@@ -145,17 +64,18 @@ public class Outline : MonoBehaviour
         foreach (var meshFilter in GetComponentsInChildren<MeshFilter>())
         {
             Mesh mesh = meshFilter.mesh;
-            if (!registeredMeshes.Add(mesh))
-                continue;
+            if (!registeredMeshes.Add(mesh)) continue;
 
-            var smoothNormals = SmoothNormals(mesh);
+            var smoothNormals = ComputeSmoothNormals(mesh);
             mesh.SetUVs(3, smoothNormals);
         }
     }
 
-    List<Vector3> SmoothNormals(Mesh mesh)
+    List<Vector3> ComputeSmoothNormals(Mesh mesh)
     {
-        var groups = mesh.vertices.Select((v, i) => new KeyValuePair<Vector3, int>(v, i)).GroupBy(p => p.Key);
+        var groups = mesh.vertices.Select((v, i) => new KeyValuePair<Vector3, int>(v, i))
+                                  .GroupBy(p => p.Key);
+
         var smoothNormals = new List<Vector3>(mesh.normals);
 
         foreach (var group in groups)
@@ -163,10 +83,8 @@ public class Outline : MonoBehaviour
             if (group.Count() == 1) continue;
 
             Vector3 avg = Vector3.zero;
-
             foreach (var pair in group)
                 avg += smoothNormals[pair.Value];
-
             avg.Normalize();
 
             foreach (var pair in group)
@@ -176,9 +94,52 @@ public class Outline : MonoBehaviour
         return smoothNormals;
     }
 
+    public void SetProgress(float progress)
+    {
+        mpb.SetFloat("_Progress", progress);
+        mpb.SetFloat("_OutlineWidth", outlineWidth);
+        UpdateZTest();
+
+        foreach (var renderer in renderers)
+            renderer.SetPropertyBlock(mpb);
+    }
+
+    void UpdateZTest()
+    {
+        float zMask = (float)UnityEngine.Rendering.CompareFunction.Always;
+        float zFill = outlineMode switch
+        {
+            Mode.OutlineAll => (float)UnityEngine.Rendering.CompareFunction.Always,
+            Mode.OutlineVisible => (float)UnityEngine.Rendering.CompareFunction.LessEqual,
+            Mode.OutlineHidden => (float)UnityEngine.Rendering.CompareFunction.Greater,
+            Mode.OutlineAndSilhouette => (float)UnityEngine.Rendering.CompareFunction.Always,
+            Mode.SilhouetteOnly => (float)UnityEngine.Rendering.CompareFunction.Greater,
+            _ => (float)UnityEngine.Rendering.CompareFunction.Always
+        };
+
+        mpb.SetFloat("_ZTestMask", zMask);
+        mpb.SetFloat("_ZTestFill", zFill);
+    }
+
+    public void ApplyGlobalColors()
+    {
+        mpb.SetColor("_IdleColor", GlobalInput.Instance.idleColor);
+        mpb.SetColor("_MidColor", GlobalInput.Instance.midColor);
+        mpb.SetColor("_ActiveColor", GlobalInput.Instance.activeColor);
+
+        foreach (var renderer in renderers)
+            renderer.SetPropertyBlock(mpb);
+    }
+
     public void ResetOutline()
     {
-        dwellTimer = 0f;
-        outlineFillMaterial.SetFloat("_Progress", 0f);
+        SetProgress(0f);
+    }
+
+    void OnDisable()
+    {
+        // Optional: remove property block to reset materials
+        foreach (var renderer in renderers)
+            renderer.SetPropertyBlock(null);
     }
 }

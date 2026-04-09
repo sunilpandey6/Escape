@@ -30,6 +30,7 @@ public class BB : MonoBehaviour
 
 
     private Material runtimeMaterial;
+    private Material runtimeMaterialFlicker;
 
     [Header("Internal Value")]
     public bool isHovering = false;
@@ -44,9 +45,6 @@ public class BB : MonoBehaviour
 
     [Header("Button Action")]
     [SerializeField] private ActionType selectedAction;
-    [SerializeField] private ActionType selectedAction1;
-    [SerializeField] private ActionType selectedAction2;
-    [SerializeField] private ActionType selectedAction3;
 
     [Header("UI Control refernce ")]
     public string value;
@@ -77,6 +75,14 @@ public class BB : MonoBehaviour
         {
             borderRect.sizeDelta = buttonRect.sizeDelta + new Vector2(borderSize * 2, borderSize * 2);
         }
+
+        if(buttonImage)
+        {
+            runtimeMaterialFlicker = Instantiate(buttonImage.material);
+            buttonImage.material = runtimeMaterialFlicker;
+            ApplyFlickerColors();
+
+        }  
         if (!button)
             button = GetComponent<Button>();
 
@@ -86,6 +92,14 @@ public class BB : MonoBehaviour
         runtimeMaterial.SetColor("_IdleColor", GlobalInput.Instance.idleColor);
         runtimeMaterial.SetColor("_MidColor", GlobalInput.Instance.midColor);
         runtimeMaterial.SetColor("_ActiveColor", GlobalInput.Instance.activeColor);
+    }
+
+    void ApplyFlickerColors()
+    {
+        runtimeMaterialFlicker.SetColor("_IdleColor", GlobalInput.Instance.idleColor);
+        runtimeMaterialFlicker.SetColor("_FlickerColor", GlobalInput.Instance.flickerOn);
+        runtimeMaterialFlicker.SetFloat("_FlickerHz", GlobalInput.Instance.flickerHz);
+        runtimeMaterialFlicker.SetFloat("_FlickerDuration", GlobalInput.Instance.flickerDuration);
     }
 
     public void Update()
@@ -165,9 +179,7 @@ public class BB : MonoBehaviour
         if (hasTriggered)
         {
             Execution(selectedAction);
-            Execution(selectedAction1);
-            Execution(selectedAction2);
-            Execution(selectedAction3);
+            //WaitForSeconds(GlobalInput.Instance.flickerDuration);
         }
 
         button?.onClick.Invoke();
@@ -209,7 +221,13 @@ public class BB : MonoBehaviour
 
     public void FF()
     {
-        StartCoroutine(Flicker());
+        //StartCoroutine(Flicker());
+        if (runtimeMaterialFlicker != null)
+        {
+            runtimeMaterialFlicker.SetFloat("_FlickerStartTime", Time.time);
+            isFlickering = true;
+        }
+
     }
 
     private IEnumerator Flicker()

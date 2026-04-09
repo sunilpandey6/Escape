@@ -4,25 +4,21 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class Flicker : MonoBehaviour
 {
-    [SerializeField] private Material flickerFillMaterial; // Assign base material in Inspector
-
+    [SerializeField] private Material flickerFillMaterial;
     private Renderer[] renderers;
+    private MaterialPropertyBlock mpb;
     private bool isFlickering = false;
     private float flickerTimer = 0f;
 
     void Awake()
     {
         renderers = GetComponentsInChildren<Renderer>();
+        mpb = new MaterialPropertyBlock();
     }
 
     void OnEnable()
     {
-        if (flickerFillMaterial != null)
-        {
-            flickerFillMaterial = Instantiate(flickerFillMaterial);
-            flickerFillMaterial.name = "FlickerFillMaterial (Instance)";
-            ApplyMaterial();
-        }
+        ApplyMaterial();
     }
 
     void OnDisable()
@@ -37,24 +33,23 @@ public class Flicker : MonoBehaviour
         if (!enabled || !isFlickering || flickerFillMaterial == null || GlobalInput.Instance == null) 
             return;
 
-        // Update shader parameters
-        flickerFillMaterial.SetColor("_BaseColor", GlobalInput.Instance.idleColor);
-        flickerFillMaterial.SetColor("_FlickerOnColor", GlobalInput.Instance.flickerOn);
-        flickerFillMaterial.SetFloat("_FlickerHz", GlobalInput.Instance.flickerHz);
-
-        // Track flicker duration
         flickerTimer += Time.deltaTime;
+
+        mpb.SetColor("_BaseColor", GlobalInput.Instance.idleColor);
+        mpb.SetColor("_FlickerOnColor", GlobalInput.Instance.flickerOn);
+        mpb.SetFloat("_FlickerHz", GlobalInput.Instance.flickerHz);
+
+        foreach (var renderer in renderers)
+            renderer.SetPropertyBlock(mpb);
+
         if (flickerTimer >= GlobalInput.Instance.flickerDuration)
         {
             isFlickering = false;
             flickerTimer = 0f;
-            enabled = false; // auto-disable after flicker ends
+            enabled = false;
         }
     }
 
-    /// <summary>
-    /// Call this to start flicker
-    /// </summary>
     public void StartFlicker()
     {
         if (!enabled) enabled = true;
@@ -66,12 +61,11 @@ public class Flicker : MonoBehaviour
     {
         foreach (var renderer in renderers)
         {
-            var materials = renderer.sharedMaterials;
-            var mats = new Material[materials.Length + 1];
-            for (int i = 0; i < materials.Length; i++)
-                mats[i] = materials[i];
-            mats[materials.Length] = flickerFillMaterial;
-            renderer.materials = mats;
+            var mats = renderer.sharedMaterials;
+            var newMats = new Material[mats.Length + 1];
+            mats.CopyTo(newMats, 0);
+            newMats[mats.Length] = flickerFillMaterial;
+            renderer.materials = newMats;
         }
     }
 
