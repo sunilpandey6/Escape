@@ -84,10 +84,10 @@ public class MainControl : MonoBehaviour
         currentExperiment = newType;
         Debug.Log($"--- Starting Experiment Block: {currentExperiment} ---");
         
-        // ====================================================================
-        // TODO: LSL LOGGING - Trigger Logging for Experiment Mode changing
-        // Example: lslOutlet.push_sample(new string[] { $"Experiment_Start_{currentExperiment.ToString()}" });
-        // ====================================================================
+        if (ExperimentLogger.Instance != null)
+        {
+            ExperimentLogger.Instance.LogEvent("Experiment_Start", currentExperiment.ToString());
+        }
 
         InitializeExperiment();
     }
@@ -133,8 +133,10 @@ public class MainControl : MonoBehaviour
             // The sequence for the current experiment has finished
             Debug.Log($"Experiment {currentExperiment} Completed!");
             
-            // TODO: LSL LOGGING - Event for Experiment Type Completion
-            // Example: lslOutlet.push_sample(new string[] { $"Experiment_Ended_{currentExperiment.ToString()}" });
+            if (ExperimentLogger.Instance != null)
+            {
+                ExperimentLogger.Instance.LogEvent("Experiment_Ended", currentExperiment.ToString());
+            }
 
             // Automatically transition to the next Experiment Type
             GoToNextExperiment();
@@ -160,7 +162,10 @@ public class MainControl : MonoBehaviour
             Debug.Log("ALL EXPERIMENTS COMPLETED!");
             currentPhase = ExperimentPhase.Completed;
             
-            // TODO: LSL LOGGING - Final Completion Marker
+            if (ExperimentLogger.Instance != null)
+            {
+                ExperimentLogger.Instance.LogEvent("All_Experiments_Completed");
+            }
         }
     }
 
@@ -170,11 +175,10 @@ public class MainControl : MonoBehaviour
         
         Debug.Log($"Transitioning to Phase: {currentPhase}");
         
-        // ====================================================================
-        // TODO: LSL LOGGING - Sync EEG data with LSL here
-        // Add LSL marker logging to indicate a scene/phase transition.
-        // Example: lslOutlet.push_sample(new string[] { $"Phase_Start_{currentPhase.ToString()}" });
-        // ====================================================================
+        if (ExperimentLogger.Instance != null)
+        {
+            ExperimentLogger.Instance.LogEvent("Phase_Start", currentPhase.ToString());
+        }
         
         // Notify listeners (like SceneController) that the phase has changed
         OnPhaseChanged?.Invoke(currentPhase);

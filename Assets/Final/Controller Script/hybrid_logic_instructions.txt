@@ -1,0 +1,33 @@
+Instructions for Hybrid Experiment Synchronization
+
+For the Hybrid experiment (Eye-Tracking + SSVEP BCI), you must wait for brainwave classification results before executing a button press or door switch.
+
+Currently, the flow acts like this:
+1. User dwells on target.
+2. Target flickers for `flickerDuration`.
+3. Object/Button triggers its action *immediately* upon completion.
+
+For BCI integration, this needs to be intercepted:
+1. User dwells on target.
+2. Target flickers.
+3. Once flicker ends, the system must wait. DO NOT execute action immediately.
+4. Listen for an external program (e.g. Python running LSL / CCA algorithms) to confirm the recognized flicker frequency or target ID.
+5. Execute the action ONLY when confirmation is received.
+
+How you will implement this next:
+In `BB.cs` and `OB.cs`, inside the `FlickerAndExecute()` coroutine, add a condition check before the final action:
+
+```csharp
+if (MainControl.Instance.currentExperiment == MainControl.ExperimentType.Hybrid) 
+{
+    // Hybrid logic: Send LSL marker indicating flicker stopped, then wait for external pipeline.
+    // Example: StartCoroutine(WaitForBCIConfirmation());
+} 
+else 
+{
+    // Normal/EyeTracking logic: Execute as normal
+    Execution(selectedAction);
+}
+```
+
+The `WaitForBCIConfirmation` coroutine will pull from an LSL Inlet until a valid classification marker is received, and use that marker to decide which action to officially execute.

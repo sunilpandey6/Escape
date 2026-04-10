@@ -4,7 +4,7 @@ Shader "Custom/FlickerFill"
     {
         _BaseColor ("Base Color", Color) = (1,1,1,1)
         _FlickerOnColor ("Flicker Color", Color) = (0,0,0,1)
-        _FlickerHz ("Flicker Hz", Float) = 15
+        _FlickerState ("Flicker State (0/1)", Float) = 0
     }
 
     SubShader
@@ -36,7 +36,7 @@ Shader "Custom/FlickerFill"
 
             float4 _BaseColor;
             float4 _FlickerOnColor;
-            float _FlickerHz;
+            float _FlickerState;
 
             v2f vert(appdata input)
             {
@@ -49,12 +49,9 @@ Shader "Custom/FlickerFill"
 
             fixed4 frag(v2f input) : SV_Target
             {
-                // Flicker factor based on frequency
-                float flicker = abs(sin(_Time.y * _FlickerHz * 2 * 3.14159)); // convert Hz to radians/sec
-
-                // Mix base color with flicker color
-                float3 color = lerp(_BaseColor.rgb, _FlickerOnColor.rgb, flicker);
-
+                float f = saturate(_FlickerState);
+                // Hard square wave — identical to UI shader
+                float3 color = lerp(_BaseColor.rgb, _FlickerOnColor.rgb, f > 0.5 ? 1.0 : 0.0);
                 return float4(color, _BaseColor.a);
             }
             ENDCG

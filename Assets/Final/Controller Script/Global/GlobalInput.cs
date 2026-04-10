@@ -22,6 +22,7 @@ public class GlobalInput : MonoBehaviour
     [Header("Flicker Settings")]
     public float flickerDuration = 2f;
     public float flickerHz = 15f;
+    public int refreshRate = 90;
 
     [Header("Border Colors")]
     public Color idleColor = new Color32(255, 255, 255, 255); // white
