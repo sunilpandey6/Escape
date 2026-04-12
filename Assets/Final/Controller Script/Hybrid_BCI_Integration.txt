@@ -1,0 +1,73 @@
+Hybrid Experiment Implemenatation Guide
+=======================================
+In a standard hybrid experiment (EyeTracking + SSVEP), the flow must adapt. Rather than immediately executing an action locally right after the SSVEP flicker finishes, the system needs to "pause" and wait for a classification result (confirmation) from another external program (like Python processing EEG data).
+
+Currently in `BB.cs` and `OB.cs`, the flow works like this:
+1. User Gazes at Button (Hovering => Dwelling)
+2. Dwell Reaches 100%
+3. Triggers SSVEP Flicker (Flickering)
+4. Flicker finishes and IMMEDIATELY fires `Execution(selectedAction)`.
+
+### How to Hook Up External BCI Confirmation
+
+To ensure we pause and wait for the BCI confirmation, you will need to break step #4 into two parts:
+
+#### Step 1: Add a "WaitingForBCI" State
+In your `BB.cs` and `OB.cs`, add a new state representing this pause:
+```csharp
+enum State
+{
+    Idle,
+    Hovering,
+    Dwelling,
+    Flickering,
+    WaitingForBCI // NEW: Waiting for Python/LSL confirmation
+}
+```
+
+#### Step 2: Stop Flickering But DON'T Execute
+Go to your `FlickerAndExecute()` Coroutine. Modify the end of it so it sets the state to `WaitingForBCI` and sends a marker over LSL to tell Python to classify the data.
+
+```csharp
+    // Stop the flicker
+    if (runtimeMaterialFlicker != null) 
+        runtimeMaterialFlicker.SetFloat("_FlickerState", 0f);
+
+    // 1. Enter the waiting state
+    currentState = State.WaitingForBCI;
+
+    // 2. Log exactly what we are waiting for to the CSV for tracking
+    ExperimentLogger.Instance?.LogEvent("Flicker_Ended", $"Button: {gameObject.name}", "Wait_For_Classify_Flickering");
+
+    // 3. Send event marker to Python via LSL telling it to analyze the last 2 seconds of EEG
+    // e.g., MyLSLOutlet.SendMarker($"Classify_{gameObject.name}");
+
+    // NOTE: We DO NOT call Execution(selectedAction) here anymore!
+```
+
+#### Step 3: Trigger Execution from External Confirmation
+You need an LSL Inlet script running in Unity that receives the classification output from Python.
+When Python finishes classifying the SSVEP EEG data, it shoots back the result (e.g., "Button1_Selected"). 
+Your inlet script in Unity reads this, finds `BB.cs` for Button1, and calls a new method you should create:
+
+```csharp
+    // Add this public method to BB.cs
+    public void ConfirmBCISelection()
+    {
+        // Only execute if this button was actually the one waiting for confirmation!
+        if (currentState == State.WaitingForBCI)
+        {
+            ExperimentLogger.Instance?.LogEvent("BCI_Confirmed", $"Button: {gameObject.name}", "Execution_Proceeding");
+            
+            Execution(selectedAction);
+            button?.onClick.Invoke();
+            
+            currentState = State.Idle;
+        }
+    }
+```
+
+### Summary of How the Logs Handle the Flow:
+- When gaze finishes: Dwell_Complete -> action=Classify_Dwelling
+- When flicker finishes: Flicker_End -> action=Wait_For_Classify_Flickering
+- When LSL responds: BCI_Confirmed -> action=Execution_Proceeding.

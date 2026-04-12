@@ -557,6 +557,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 18128271}
   attribute: 3
+  currentState: 0
   outlineImage: {fileID: 135951642}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 727205803}
@@ -566,8 +567,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 15
   borderSize: 3
   selectedAction: 0
@@ -1095,7 +1094,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 65d31ca9600c4654e886aa7bab36e94b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 98ed78790d7c35241bd421ccb798a948, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2111,6 +2110,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 281092132}
   attribute: 1
+  currentState: 0
   outlineImage: {fileID: 1843254686}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 1416598492}
@@ -2120,8 +2120,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 10
   borderSize: 3
   selectedAction: 1
@@ -2307,6 +2305,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 294649464}
   attribute: 1
+  currentState: 0
   outlineImage: {fileID: 1823100519}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 1927098984}
@@ -2316,8 +2315,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 10
   borderSize: 3
   selectedAction: 1
@@ -2621,6 +2618,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 318501523}
   attribute: 1
+  currentState: 0
   outlineImage: {fileID: 17587848}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 1829809952}
@@ -2630,8 +2628,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 10
   borderSize: 3
   selectedAction: 1
@@ -2986,6 +2982,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 354872677}
   attribute: 1
+  currentState: 0
   outlineImage: {fileID: 1278840546}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 628652689}
@@ -2995,8 +2992,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 10
   borderSize: 3
   selectedAction: 1
@@ -3467,6 +3462,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 431645555}
   attribute: 1
+  currentState: 0
   outlineImage: {fileID: 1238188806}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 423927451}
@@ -3476,8 +3472,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 10
   borderSize: 3
   selectedAction: 1
@@ -4117,7 +4111,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 65d31ca9600c4654e886aa7bab36e94b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 98ed78790d7c35241bd421ccb798a948, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -4481,6 +4475,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 573449526}
   attribute: 1
+  currentState: 0
   outlineImage: {fileID: 33523174}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 1465816546}
@@ -4490,8 +4485,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 10
   borderSize: 3
   selectedAction: 1
@@ -4631,6 +4624,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 596684115}
   attribute: 0
+  currentState: 0
   outlineImage: {fileID: 738435876}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 219087022}
@@ -4640,8 +4634,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 10
   borderSize: 3
   selectedAction: 0
@@ -5483,6 +5475,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 649406579}
   attribute: 1
+  currentState: 0
   outlineImage: {fileID: 1523929036}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 1082069708}
@@ -5492,8 +5485,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 10
   borderSize: 3
   selectedAction: 1
@@ -5911,6 +5902,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 701513485}
   attribute: 1
+  currentState: 0
   outlineImage: {fileID: 1379902587}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 1237520734}
@@ -5920,8 +5912,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 10
   borderSize: 3
   selectedAction: 1
@@ -6055,6 +6045,7 @@ MonoBehaviour:
   dwellTime: 2.5
   flickerDuration: 2
   flickerHz: 15
+  refreshRate: 90
   idleColor: {r: 1, g: 1, b: 1, a: 1}
   midColor: {r: 1, g: 0.64705884, b: 0, a: 1}
   activeColor: {r: 0, g: 1, b: 0, a: 1}
@@ -6768,7 +6759,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 65d31ca9600c4654e886aa7bab36e94b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 98ed78790d7c35241bd421ccb798a948, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -6887,6 +6878,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 919733122}
   attribute: 1
+  currentState: 0
   outlineImage: {fileID: 1306585909}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 53679023}
@@ -6896,8 +6888,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 10
   borderSize: 3
   selectedAction: 1
@@ -7601,6 +7591,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 958575805}
   attribute: 1
+  currentState: 0
   outlineImage: {fileID: 556589815}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 1256342484}
@@ -7610,8 +7601,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 10
   borderSize: 3
   selectedAction: 1
@@ -8024,6 +8013,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 988205404}
   attribute: 1
+  currentState: 0
   outlineImage: {fileID: 444707139}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 1671287283}
@@ -8033,8 +8023,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 10
   borderSize: 3
   selectedAction: 1
@@ -8401,6 +8389,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 1039649691}
   attribute: 0
+  currentState: 0
   outlineImage: {fileID: 172793650}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 1113048574}
@@ -8410,8 +8399,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 10
   borderSize: 3
   selectedAction: 0
@@ -9710,7 +9697,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 65d31ca9600c4654e886aa7bab36e94b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 98ed78790d7c35241bd421ccb798a948, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -10376,6 +10363,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 1324747717}
   attribute: 1
+  currentState: 0
   outlineImage: {fileID: 397201351}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 346115119}
@@ -10385,8 +10373,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 10
   borderSize: 3
   selectedAction: 1
@@ -11045,6 +11031,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 1367620770}
   attribute: 2
+  currentState: 0
   outlineImage: {fileID: 1226801184}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 537038956}
@@ -11054,8 +11041,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 15
   borderSize: 3
   selectedAction: 2
@@ -12007,7 +11992,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 65d31ca9600c4654e886aa7bab36e94b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 98ed78790d7c35241bd421ccb798a948, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -12336,6 +12321,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 1534617992}
   attribute: 1
+  currentState: 0
   outlineImage: {fileID: 1808496838}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 1524446391}
@@ -12345,8 +12331,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 10
   borderSize: 3
   selectedAction: 1
@@ -13230,6 +13214,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 1622393792}
   attribute: 1
+  currentState: 0
   outlineImage: {fileID: 1548971734}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 1541426258}
@@ -13239,8 +13224,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 10
   borderSize: 3
   selectedAction: 1
@@ -13568,6 +13551,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 1653500868}
   attribute: 1
+  currentState: 0
   outlineImage: {fileID: 1375559942}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 1529833315}
@@ -13577,8 +13561,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 10
   borderSize: 3
   selectedAction: 0
@@ -14008,6 +13990,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 1688527858}
   attribute: 1
+  currentState: 0
   outlineImage: {fileID: 1326248543}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 647817678}
@@ -14017,8 +14000,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 10
   borderSize: 3
   selectedAction: 1
@@ -14204,6 +14185,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 1689516182}
   attribute: 1
+  currentState: 0
   outlineImage: {fileID: 957514324}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 1415703892}
@@ -14213,8 +14195,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 10
   borderSize: 3
   selectedAction: 0
@@ -14400,6 +14380,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 1695215839}
   attribute: 1
+  currentState: 0
   outlineImage: {fileID: 612364633}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 171002951}
@@ -14409,8 +14390,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 10
   borderSize: 3
   selectedAction: 1
@@ -15218,7 +15197,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 65d31ca9600c4654e886aa7bab36e94b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 98ed78790d7c35241bd421ccb798a948, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -15337,6 +15316,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 1817220710}
   attribute: 1
+  currentState: 0
   outlineImage: {fileID: 1642417397}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 1868680218}
@@ -15346,8 +15326,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 10
   borderSize: 3
   selectedAction: 1
@@ -17004,6 +16982,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 2093350396}
   attribute: 1
+  currentState: 0
   outlineImage: {fileID: 1832001283}
   borderImage: {fileID: 0}
   buttonImage: {fileID: 1326673917}
@@ -17013,8 +16992,6 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   dwellTimer: 0
-  isFlickering: 0
-  flickerTimes: 1
   outlineSize: 10
   borderSize: 3
   selectedAction: 1

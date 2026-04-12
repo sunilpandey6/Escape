@@ -207,12 +207,12 @@ public class BB : MonoBehaviour
 
     private IEnumerator FlickerAndExecute()
     {
-        ExperimentLogger.Instance?.LogEvent("Dwell_Complete", $"Button: {gameObject.name}");
+        ExperimentLogger.Instance?.LogEvent("Dwell_Complete", $"Button: {gameObject.name}", "Classify_Dwelling");
         
         currentState = State.Flickering;
         hasTriggered = true;
         
-        ExperimentLogger.Instance?.LogEvent("Flicker_Start", $"Button: {gameObject.name}, Hz: {GlobalInput.Instance.flickerHz}");
+        ExperimentLogger.Instance?.LogEvent("Flicker_Start", $"Button: {gameObject.name}, Hz: {GlobalInput.Instance.flickerHz}", "Flickering");
 
         yield return new WaitForSeconds(GlobalInput.Instance.flickerDuration);
 
@@ -222,7 +222,7 @@ public class BB : MonoBehaviour
         if (runtimeMaterialFlicker != null)
             runtimeMaterialFlicker.SetFloat("_FlickerState", 0f);
 
-        ExperimentLogger.Instance?.LogEvent("Flicker_End", $"Button: {gameObject.name}");
+        ExperimentLogger.Instance?.LogEvent("Flicker_End", $"Button: {gameObject.name}", "Wait_For_Classify_Flickering");
 
         Execution(selectedAction);
         button?.onClick.Invoke();
@@ -244,7 +244,7 @@ public class BB : MonoBehaviour
 
     public void Execution(ActionType action)
     {
-        ExperimentLogger.Instance?.LogEvent("Action_Executed", $"Button: {gameObject.name}, Action: {action}");
+        ExperimentLogger.Instance?.LogEvent("Action_Executed", $"Button: {gameObject.name}, Action: {action}", "Execution_Proceeding");
         
         switch (action)
         {
@@ -317,7 +317,7 @@ public class BB : MonoBehaviour
     public void OnHoverEnter()
     {
         isHovering = true;
-        ExperimentLogger.Instance?.LogEvent("Hover_Enter", $"Button: {gameObject.name}");
+        ExperimentLogger.Instance?.LogEvent("Hover_Enter", $"Button: {gameObject.name}", "Hovering");
         
         if (currentState == State.Idle)
             currentState = State.Hovering;
@@ -326,7 +326,7 @@ public class BB : MonoBehaviour
     public void OnHoverExit()
     {
         isHovering = false;
-        ExperimentLogger.Instance?.LogEvent("Hover_Exit", $"Button: {gameObject.name}");
+        ExperimentLogger.Instance?.LogEvent("Hover_Exit", $"Button: {gameObject.name}", "Hover_Exit");
         
         currentState = State.Idle;
         dwellTimer = 0f;

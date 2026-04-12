@@ -1,6 +1,6 @@
-using System;
-using System.IO;
 using UnityEngine;
+using System.IO;
+using System;
 
 public class ExperimentLogger : MonoBehaviour
 {
@@ -11,7 +11,6 @@ public class ExperimentLogger : MonoBehaviour
 
     private void Awake()
     {
-        // Singleton setup
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -20,78 +19,50 @@ public class ExperimentLogger : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        InitializeLogger();
-    }
-
-    private void InitializeLogger()
-    {
+        // Setup CSV file path in the Assets folder so it's easy to find during dev
         string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
         filePath = Path.Combine(Application.dataPath, $"ExperimentLog_{timestamp}.csv");
 
-        try
-        {
-            writer = new StreamWriter(filePath, true);
-            // Write CSV Header
-            writer.WriteLine("Timestamp,ExperimentType,Phase,EventName,Details");
-            writer.Flush();
-            Debug.Log($"[ExperimentLogger] CSV initialized at: {filePath}");
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"[ExperimentLogger] Failed to create log file: {e.Message}");
-        }
+        // Write CSV header
+        writer = new StreamWriter(filePath, true);
+        writer.WriteLine("Time,Experiment,Phase,Event,Detail,Action");
+        writer.Flush();
+        
+        Debug.Log($"Logging to: {filePath}");
     }
 
     /// <summary>
-    /// Logs an event to the CSV file.
-    /// Event examples: "Dwell_Start", "Flicker_End", "Phase_Transition".
+    /// Logs an event to the CSV. Automatically fetches current Experiment and Phase.
+    /// Event: Example "Dwell_Complete"
+    /// Detail: Example "Button1"
+    /// Action: Example "Classify_Dwelling"
     /// </summary>
-    public void LogEvent(string eventName, string details = "")
+    public void LogEvent(string eventName, string detail = "", string action = "")
     {
         if (writer == null) return;
 
-        string time = DateTime.Now.ToString("HH:mm:ss.fff");
-        string expType = "Unknown";
-        string phase = "Unknown";
-
-        // Pull current state metadata if MainControl is active
-        if (MainControl.Instance != null)
-        {
-            expType = MainControl.Instance.currentExperiment.ToString();
-            phase = MainControl.Instance.currentPhase.ToString();
-        }
-
-        // Clean details string to prevent breaking CSV formatting
-        string safeDetails = details.Replace(",", ";").Replace("\n", " ");
-
-        string line = $"{time},{expType},{phase},{eventName},{safeDetails}";
+        // 1. Time
+        string time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
         
-        try
-        {
-            writer.WriteLine(line);
-            writer.Flush();
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"[ExperimentLogger] Failed to write to log file: {e.Message}");
-        }
+        // 2 & 3. Experiment and Phase pulled directly from MainControl
+        string experiment = MainControl.Instance != null ? MainControl.Instance.currentExperiment.ToString() : "None";
+        string phase = MainControl.Instance != null ? MainControl.Instance.currentPhase.ToString() : "None";
+
+        // Clean any commas from strings since it's a CSV format
+        detail = detail.Replace(",", ";");
+        action = action.Replace(",", ";");
+        eventName = eventName.Replace(",", ";");
+
+        // Format and Write
+        string line = $"{time},{experiment},{phase},{eventName},{detail},{action}";
+        writer.WriteLine(line);
+        writer.Flush();
     }
 
     private void OnDestroy()
     {
-        CloseLogger();
-    }
-
-    private void OnApplicationQuit()
-    {
-        CloseLogger();
-    }
-
-    private void CloseLogger()
-    {
         if (writer != null)
         {
-            LogEvent("System_Stop", "Application Quit or Logger Destroyed");
             writer.Close();
             writer = null;
         }
