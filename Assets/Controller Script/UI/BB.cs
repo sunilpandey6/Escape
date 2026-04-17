@@ -69,34 +69,39 @@ public class BB : MonoBehaviour
     }
 
     #region Unity Lifecycle
+    void Awake()
+    {
+        if (!button)
+            button = GetComponent<Button>();
 
-    public void Awake()
+        if (outlineImage)
+            outlineRect.sizeDelta = buttonRect.sizeDelta + new Vector2(outlineSize * 2, outlineSize * 2);
+
+        if (borderImage)
+            borderRect.sizeDelta = buttonRect.sizeDelta + new Vector2(borderSize * 2, borderSize * 2);
+    }
+
+    void OnEnable()
     {
         if (outlineImage)
         {
-            outlineRect.sizeDelta = buttonRect.sizeDelta + new Vector2(outlineSize * 2, outlineSize * 2);
-            runtimeMaterial = Instantiate(outlineImage.material);
+            runtimeMaterial = new Material(outlineImage.material);
             outlineImage.material = runtimeMaterial;
             ApplyGlobalColors();
             outlineImage.gameObject.SetActive(false);
         }
 
-        if (borderImage)
-        {
-            borderRect.sizeDelta = buttonRect.sizeDelta + new Vector2(borderSize * 2, borderSize * 2);
-        }
-
         if (buttonImage)
         {
-            runtimeMaterialFlicker = Instantiate(buttonImage.material);
+            runtimeMaterialFlicker = new Material(buttonImage.material);
             buttonImage.material = runtimeMaterialFlicker;
             ApplyFlickerColors();
         }
 
-        if (!button)
-            button = GetComponent<Button>();
-
-        // framesPerCycle / halfCycle removed — time-based approach needs nothing pre-computed
+        // reset runtime state (important!)
+        dwellTimer = 0f;
+        hasTriggered = false;
+        flickerStartTime = -1f;
     }
 
     void ApplyGlobalColors()
