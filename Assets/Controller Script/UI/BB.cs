@@ -104,6 +104,12 @@ public class BB : MonoBehaviour
         flickerStartTime = -1f;
     }
 
+    void OnDisable()
+    {
+        runtimeMaterial = null;
+        runtimeMaterialFlicker = null;
+    }
+
     void ApplyGlobalColors()
     {
         runtimeMaterial.SetColor("_IdleColor",   GlobalInput.Instance.idleColor);
