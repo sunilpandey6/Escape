@@ -7,11 +7,6 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: 316313476cfe2ddee7782e7855b64367
-    second: {fileID: 2100000, guid: 3a12553da99c8d648872053eb3f039a1, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
       name: Chrome Handle
     second: {fileID: 2100000, guid: 3dc5b3fa38c393d4da61b7f78cecc3c1, type: 2}
   - first:
@@ -22,27 +17,12 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Material.139
-    second: {fileID: 2100000, guid: 8c16e0c0db8386042831436756607f9a, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Metal Guard
-    second: {fileID: 2100000, guid: f37c1056d94da244b963e89357505f30, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Metal Guard.001
-    second: {fileID: 2100000, guid: d7ee993f691ab4648a8547286a307e67, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
       name: Rear Doors.001
     second: {fileID: 2100000, guid: 39df974315c0b8a4b9ec0c8c06bf5121, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: c790c7f50dab9e8a5c5f82b94b61fbc8
+      name: c790c7f50dab9e8a5c5f82b94b61fbc8.001
     second: {fileID: 2100000, guid: 7844cd0a2e2a63a48a96e3333d6b2b24, type: 2}
   materials:
     materialImportMode: 2
