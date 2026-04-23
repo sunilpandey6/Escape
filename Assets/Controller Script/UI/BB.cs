@@ -42,6 +42,8 @@ public class BB : MonoBehaviour
     [SerializeField] private bool hasTriggered = false;
     [SerializeField] private float dwellTimer = 0f;
 
+    public static BB activeButton = null;
+
     // Removed: flickerTimes, framesPerCycle, halfCycle — no longer needed
 
     // Time-based flicker anchor
@@ -108,6 +110,9 @@ public class BB : MonoBehaviour
     {
         runtimeMaterial = null;
         runtimeMaterialFlicker = null;
+
+        if (activeButton == this)
+            activeButton = null;
     }
 
     void ApplyGlobalColors()
@@ -327,6 +332,9 @@ public class BB : MonoBehaviour
 
     public void OnHoverEnter()
     {
+        if (activeButton != null && activeButton != this) return;
+        activeButton = this;
+
         isHovering = true;
         ExperimentLogger.Instance?.LogEvent("Hover_Enter", $"Button: {gameObject.name}", "Hovering");
         
@@ -336,6 +344,8 @@ public class BB : MonoBehaviour
 
     public void OnHoverExit()
     {
+        if (activeButton != this) return;
+
         isHovering = false;
         ExperimentLogger.Instance?.LogEvent("Hover_Exit", $"Button: {gameObject.name}", "Hover_Exit");
         
@@ -348,6 +358,8 @@ public class BB : MonoBehaviour
 
         if (runtimeMaterialFlicker != null)
             runtimeMaterialFlicker.SetFloat("_FlickerState", 0f);
+
+        activeButton = null;
     }
 
     #endregion

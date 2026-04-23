@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -32,20 +32,25 @@ public class Outline : MonoBehaviour
 
     void OnEnable()
     {
+        
+        EnsureMaterialExist();
+        ApplyMaterials();
+        LoadSmoothNormals();
+    }
+
+    private void EnsureMaterialExist()
+    {
         if (cachedMaskMaterial == null)
         {
-            cachedMaskMaterial = Instantiate(Resources.Load<Material>("Materials/OutlineMask"));
+            cachedMaskMaterial = Instantiate(Resources.Load<Material>("Materials/Outline/3D/OutlineMask"));
             cachedMaskMaterial.name = "OutlineMask (Instance)";
         }
 
         if (cachedFillMaterial == null)
         {
-            cachedFillMaterial = Instantiate(Resources.Load<Material>("Materials/OutlineFill"));
+            cachedFillMaterial = Instantiate(Resources.Load<Material>("Materials/Outline/3D/OutlineFill"));
             cachedFillMaterial.name = "OutlineFill (Instance)";
         }
-
-        ApplyMaterials();
-        LoadSmoothNormals();
     }
 
     void ApplyMaterials()
@@ -55,7 +60,7 @@ public class Outline : MonoBehaviour
             var mats = renderer.sharedMaterials.ToList();
             if (!mats.Contains(cachedMaskMaterial)) mats.Add(cachedMaskMaterial);
             if (!mats.Contains(cachedFillMaterial)) mats.Add(cachedFillMaterial);
-            renderer.materials = mats.ToArray();
+            renderer.sharedMaterials = mats.ToArray();
         }
     }
 
@@ -96,15 +101,17 @@ public class Outline : MonoBehaviour
 
     public void SetProgress(float progress)
     {
-        mpb.SetFloat("_Progress", progress);
-        mpb.SetFloat("_OutlineWidth", outlineWidth);
-        UpdateZTest();
-
         foreach (var renderer in renderers)
+        {
+            renderer.GetPropertyBlock(mpb);
+            mpb.SetFloat("_Progress", progress);
+            mpb.SetFloat("_OutlineWidth", outlineWidth);
+            UpdateZTest(mpb);
             renderer.SetPropertyBlock(mpb);
+        }
     }
 
-    void UpdateZTest()
+    void UpdateZTest(MaterialPropertyBlock block)
     {
         float zMask = (float)UnityEngine.Rendering.CompareFunction.Always;
         float zFill = outlineMode switch
@@ -117,18 +124,20 @@ public class Outline : MonoBehaviour
             _ => (float)UnityEngine.Rendering.CompareFunction.Always
         };
 
-        mpb.SetFloat("_ZTestMask", zMask);
-        mpb.SetFloat("_ZTestFill", zFill);
+        block.SetFloat("_ZTestMask", zMask);
+        block.SetFloat("_ZTestFill", zFill);
     }
 
     public void ApplyGlobalColors()
     {
-        mpb.SetColor("_IdleColor", GlobalInput.Instance.idleColor);
-        mpb.SetColor("_MidColor", GlobalInput.Instance.midColor);
-        mpb.SetColor("_ActiveColor", GlobalInput.Instance.activeColor);
-
         foreach (var renderer in renderers)
+        {
+            renderer.GetPropertyBlock(mpb);
+            mpb.SetColor("_IdleColor", GlobalInput.Instance.idleColor);
+            mpb.SetColor("_MidColor", GlobalInput.Instance.midColor);
+            mpb.SetColor("_ActiveColor", GlobalInput.Instance.activeColor);
             renderer.SetPropertyBlock(mpb);
+        }
     }
 
     public void ResetOutline()
@@ -140,6 +149,7 @@ public class Outline : MonoBehaviour
     {
         // Optional: remove property block to reset materials
         foreach (var renderer in renderers)
+            // renderer.SetPropertyBlock(null);
             renderer.SetPropertyBlock(null);
     }
 }

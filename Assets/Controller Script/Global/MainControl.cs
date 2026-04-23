@@ -18,6 +18,7 @@ public class MainControl : MonoBehaviour
         SettingUI,
         TestUI,
         Demo3D,
+        TrainBCI
         Test3D,
         Completed
     }

@@ -1,6 +1,6 @@
 ﻿Shader "Custom/Outline Mask" {
   Properties {
-    [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("ZTest", Float) = 0
+    [Enum(UnityEngine.Rendering.CompareFunction)] _ZTestMask("ZTestMask", Float) = 0
   }
 
   SubShader {
@@ -12,7 +12,7 @@
     Pass {
       Name "Mask"
       Cull Off
-      ZTest [_ZTest]
+      ZTest [_ZTestMask]
       ZWrite Off
       ColorMask 0
 

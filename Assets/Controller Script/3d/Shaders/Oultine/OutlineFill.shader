@@ -2,8 +2,8 @@
 {
     Properties
     {
-        [Enum(UnityEngine.Rendering.CompareFunction)] _ZTest("ZTest", Float) = 0
-
+        [Enum(UnityEngine.Rendering.CompareFunction)] _ZTestFill("ZTestFill", Float) = 0
+        
         _IdleColor ("Idle Color", Color) = (1,1,1,1)
         _MidColor ("Mid Color", Color) = (1,0.5,0,1)
         _ActiveColor ("Active Color", Color) = (0,1,0,1)
@@ -25,7 +25,7 @@
         {
             Name "Fill"
             Cull Off
-            ZTest [_ZTest]
+            ZTest [_ZTestFill]
             ZWrite Off
             Blend SrcAlpha OneMinusSrcAlpha
             ColorMask RGB

@@ -29,7 +29,21 @@ public class OB : MonoBehaviour
     [SerializeField] private bool hasTriggered = false;
     [SerializeField] private bool isFlickering = false;
 
-    private void Start()
+    public static OB activeObject = null;
+
+    private void Awake()
+    {
+        outline = GetComponent<Outline>();
+        flicker = GetComponent<Flicker>();
+    }
+
+    private void OnValidate()
+    {
+        outline = GetComponent<Outline>();
+        flicker = GetComponent<Flicker>();
+    }
+
+    private void OnEnable()
     {
         outline.ApplyGlobalColors();
         flicker.enabled = false;
@@ -54,17 +68,24 @@ public class OB : MonoBehaviour
     #region Pointer Event
     public void StartGaze()
     {
+        if (activeObject != null && activeObject != this) return;
+        activeObject = this;
+
         isHovering = true;
         ExperimentLogger.Instance?.LogEvent("Gaze_Start", $"Object: {gameObject.name}", "Hovering");
     }
 
     public void StopGaze()
     {
+        if (activeObject != this) return;
+
         isHovering = false;
         ExperimentLogger.Instance?.LogEvent("Gaze_Stop", $"Object: {gameObject.name}", "Hover_Exit");
         dwellTimer = 0f;
         hasTriggered = false;
         outline.ResetOutline();
+
+        activeObject = null;
     }
     #endregion
 
@@ -107,4 +128,17 @@ public class OB : MonoBehaviour
         }
     }
     #endregion
+
+    private void OnDisable()
+    {
+        isHovering = false;
+        isFlickering = false;
+        hasTriggered = false;
+        dwellTimer = 0f;
+
+        if (activeObject == this)
+            activeObject = null;
+
+        StopAllCoroutines();
+    } 
 }
