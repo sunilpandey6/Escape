@@ -23,6 +23,13 @@ public class BB : MonoBehaviour
         Dwelling,
         Flickering,
     }
+
+    public enum ActionType
+    {
+        None,
+        Intro,
+        TestUI
+    }
     [SerializeField] private State currentState = State.Idle;
 
     [Header("Button as header")]
@@ -61,14 +68,6 @@ public class BB : MonoBehaviour
     public bool isDelete;
     public bool isNext;
     public TestUI testUI;
-
-    public enum ActionType
-    {
-        None,
-        Flicker,
-        ResetDwell,
-        TestUI
-    }
 
     #region Unity Lifecycle
     void Awake()
@@ -136,14 +135,13 @@ public class BB : MonoBehaviour
                 HandleNone();
                 break;
             case Att.Normal:
-                if (isHovering && currentState != State.Flickering)
-                    ChangeColor();
+                if (isHovering && currentState != State.Flickering) ChangeColor();
                 break;
             case Att.DwellDemo:
-                HandleDwell();
+                if (isHovering && currentState != State.Flickering) HandleDwell();
                 break;
             case Att.FlickerDemo:
-                HandleFlickerDemo();
+                if (isHovering) HandleFlickerDemo();
                 break;
         }
 
@@ -166,19 +164,19 @@ public class BB : MonoBehaviour
 
     void HandleDwell()
     {
-        if (currentState == State.Hovering || currentState == State.Dwelling)
+        if (outlineImage && !outlineImage.gameObject.activeSelf) outlineImage.gameObject.SetActive(true);
+
+
+        currentState = State.Dwelling;
+
+        dwellTimer += Time.deltaTime;
+        float progress = Mathf.Clamp01(dwellTimer / GlobalInput.Instance.dwellTime);
+        runtimeMaterial.SetFloat("_Progress", progress);
+
+        if (progress >= 1f && currentState != State.Flickering && !hasTriggered)
         {
-            currentState = State.Dwelling;
-
-            dwellTimer += Time.deltaTime;
-            float progress = Mathf.Clamp01(dwellTimer / GlobalInput.Instance.dwellTime);
-            runtimeMaterial.SetFloat("_Progress", progress);
-
-            if (progress >= 1f && currentState != State.Flickering && !hasTriggered)
-            {
-                hasTriggered = true;
-                StartCoroutine(FlickerAndExecute());
-            }
+            hasTriggered = true;
+            Execution(selectedAction);
         }
     }
 
@@ -266,11 +264,8 @@ public class BB : MonoBehaviour
         {
             case ActionType.None:
                 break;
-            case ActionType.Flicker:
-                Debug.Log("Flicker action executed!");
-                break;
-            case ActionType.ResetDwell:
-                ResetColor();
+            case ActionType.Intro:
+                button?.onClick.Invoke();
                 break;
             case ActionType.TestUI:
                 TestUIControl();

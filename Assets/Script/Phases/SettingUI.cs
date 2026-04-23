@@ -6,6 +6,7 @@ using UnityEngine;
 public class SettingUI : MonoBehaviour
 {  
     [Header("UI Panels")]
+    public GameObject IntroPanel;
     public GameObject DwellPanel;
     public GameObject FlickerPanel;
     
@@ -17,10 +18,11 @@ public class SettingUI : MonoBehaviour
     public TMP_Text flickerTimeText;
 
     #region Unity Lifecycle
-    private void OnEnable()
+    private void Start()
     {
         PositionCanvasFront();
-        DwellPanelOn();
+        IntroPanelOn();
+        StartIntroButton();
         UpdateAllValues();
     }
 
@@ -43,16 +45,25 @@ public class SettingUI : MonoBehaviour
     #endregion
 
     #region Panel Switching
+    public void IntroPanelOn()
+    {
+        if (IntroPanel != null) IntroPanel.SetActive(true);
+        if (DwellPanel != null) DwellPanel.SetActive(false);
+        if (FlickerPanel != null) FlickerPanel.SetActive(false);
+    }
+    
     public void DwellPanelOn()
     {
         if (DwellPanel != null) DwellPanel.SetActive(true);
         if (FlickerPanel != null) FlickerPanel.SetActive(false);
+        if (IntroPanel != null) IntroPanel.SetActive(false);
     }
 
     public void FlickerPanelOn()
     {
         if (DwellPanel != null) DwellPanel.SetActive(false);
         if (FlickerPanel != null) FlickerPanel.SetActive(true);
+        if (IntroPanel != null) IntroPanel.SetActive(false);
     }
 
     public void NextPhase()
@@ -61,6 +72,26 @@ public class SettingUI : MonoBehaviour
     }
     #endregion
 
+    #region Intro Actions
+    public void StartIntroButton() 
+    { 
+        BB[] buttons = IntroPanel.GetComponentsInChildren<BB>(true); 
+        foreach (var b in buttons) 
+        {
+            if (b.gameObject.name == "Intro-Next-UI") b.gameObject.SetActive(false); 
+        } 
+    }
+
+    public void IntroNextButton() 
+    {
+         BB[] buttons = IntroPanel.GetComponentsInChildren<BB>(true); 
+         foreach (var b in buttons) 
+         {
+            if (b.gameObject.name == "Intro-Next-UI") b.gameObject.SetActive(true); 
+         } 
+    }
+    #endregion
+    
     #region Value Updates
     public void UpdateAllValues()
     {
@@ -94,7 +125,7 @@ public class SettingUI : MonoBehaviour
     }
     public void subDwellTIme()
     {
-        if (GlobalInput.Instance.dwellTime > 0.5f)
+        if (GlobalInput.Instance.dwellTime > 1.0f)
         {
             GlobalInput.Instance.dwellTime -= 0.5f;
             UpdateDwellValue();
@@ -115,7 +146,7 @@ public class SettingUI : MonoBehaviour
     {
         if (GlobalInput.Instance.flickerHz > 12f)
         {
-            GlobalInput.Instance.flickerHz -= 0.5f;
+            GlobalInput.Instance.flickerHz -= 1.0f;
             UpdateFlickerValues();
         }
     }
