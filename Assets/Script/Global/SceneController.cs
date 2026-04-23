@@ -14,9 +14,11 @@ public class SceneController : MonoBehaviour
     [Tooltip("The parent GameObject for the Demo 3D Environment")]
     public GameObject demo3DObject;
     
+    [Tooltip("The parent GameObject for the Train BCI Environment")]
+    public GameObject trainBCIObject;
+    
     [Tooltip("The parent GameObject for the Test 3D Environment")]
     public GameObject test3DObject;
-    //a
 
     private void Start()
     {

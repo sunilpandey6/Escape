@@ -18,11 +18,14 @@ public class MainControl : MonoBehaviour
         SettingUI,
         TestUI,
         Demo3D,
-        TrainBCI
+        TrainBCI,
         Test3D,
         Completed
     }
 
+    // gaze controller
+    public bool isGazeInteractionEnabled { get; private set; } = true;
+    
     [Header("Experiment Configuration")]
     public ExperimentType currentExperiment = ExperimentType.EyeTracking;
     public ExperimentPhase currentPhase;
@@ -42,13 +45,12 @@ public class MainControl : MonoBehaviour
     private readonly List<ExperimentPhase> hybridSequence = new List<ExperimentPhase>
     {
         ExperimentPhase.TestUI,
-        ExperimentPhase.Demo3D,
         ExperimentPhase.Test3D
     };
 
     private readonly List<ExperimentPhase> bciSequence = new List<ExperimentPhase>
     {
-        ExperimentPhase.Demo3D,
+        ExperimentPhase.TrainBCI,
         ExperimentPhase.Test3D
     };
 
@@ -83,6 +85,9 @@ public class MainControl : MonoBehaviour
     public void SetExperimentType(ExperimentType newType)
     {
         currentExperiment = newType;
+        // if the current experiment is BCI, disable gaze interaction
+        isGazeInteractionEnabled = (newType != ExperimentType.BCI);
+
         Debug.Log($"--- Starting Experiment Block: {currentExperiment} ---");
         
         if (ExperimentLogger.Instance != null)

@@ -14,6 +14,7 @@ public class Flicker : MonoBehaviour
     {
         renderers = GetComponentsInChildren<Renderer>();
         mpb = new MaterialPropertyBlock();
+        EnsureMaterialExists();
     }
 
     void OnValidate()
@@ -21,7 +22,7 @@ public class Flicker : MonoBehaviour
         if (flickerFillMaterial == null)
             flickerFillMaterial = Resources.Load<Material>("Materials/Flicker/3D/FlickerFillMat");
     }
-    void OnEnable()  { ApplyMaterial(); EnsureMaterialExist();}
+    void OnEnable()  { }
     void OnDisable() { RemoveMaterial(); StopFlickerState(); }
 
     void Update()
@@ -56,6 +57,7 @@ public class Flicker : MonoBehaviour
 
     public void StartFlicker()
     {
+        ApplyMaterial();
         if (!enabled) enabled = true;
         isFlickering  = true;
         flickerTimer  = 0f;
@@ -123,7 +125,7 @@ public class Flicker : MonoBehaviour
     {
         if (flickerFillMaterial != null)
             return;
-        flickerFillMaterial = Resources.Load<Material>("Materials/Flicker/FlickerFillMat");
+        flickerFillMaterial = Resources.Load<Material>("Materials/Flicker/3D/FlickerFillMat");
 
         if (flickerFillMaterial != null)
         {
