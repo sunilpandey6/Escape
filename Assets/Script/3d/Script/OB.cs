@@ -74,7 +74,7 @@ public class OB : MonoBehaviour
         activeObject = this;
 
         isHovering = true;
-        ExperimentLogger.Instance?.LogEvent("Gaze_Start", $"Object: {gameObject.name}", "Hovering");
+        ExperimentLogger.Instance?.LogEvent("Dwell_Start", $"Object: {gameObject.name}", "Dwell_Started");
     }
 
     public void StopGaze()
@@ -96,19 +96,19 @@ public class OB : MonoBehaviour
     #region Dwell Complete
     private IEnumerator FlickerAndExecute()
     {
-        ExperimentLogger.Instance?.LogEvent("Dwell_Complete", $"Object: {gameObject.name}", "Classify_Dwelling");
+        ExperimentLogger.Instance?.LogEvent("Dwell_Complete", $"Object: {gameObject.name}", "Dwelling_Completed");
         
         isFlickering = true;
         flicker.StartFlicker();
 
-        ExperimentLogger.Instance?.LogEvent("Flicker_Start", $"Object: {gameObject.name}, Hz: {GlobalInput.Instance.flickerHz}", "Flickering");
+        ExperimentLogger.Instance?.LogEvent("Flicker_Start", $"Object: {gameObject.name}, Hz: {GlobalInput.Instance.flickerHz}", "Flickering_Start");
 
         yield return new WaitForSeconds(GlobalInput.Instance.flickerDuration);
 
         outline.ResetOutline();
         isFlickering = false;
 
-        ExperimentLogger.Instance?.LogEvent("Flicker_End", $"Object: {gameObject.name}", "Wait_For_Classify_Flickering");
+        ExperimentLogger.Instance?.LogEvent("Flicker_End", $"Object: {gameObject.name}", "Flickering_Completed");
 
         ExecuteAction(selectedAction);
     }

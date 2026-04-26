@@ -20,7 +20,7 @@ public class ExperimentLogger : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         // Setup CSV file path in the Assets folder so it's easy to find during dev
-        string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+        string timestamp = DateTime.Now.ToString("MMdd_HHmmss");
         filePath = Path.Combine(Application.dataPath, $"ExperimentLog_{timestamp}.csv");
 
         // Write CSV header
@@ -42,7 +42,7 @@ public class ExperimentLogger : MonoBehaviour
         if (writer == null) return;
 
         // 1. Time
-        string time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
+        string time = DateTime.Now.ToString("HH:mm:ss.fff");
         
         // 2 & 3. Experiment and Phase pulled directly from MainControl
         string experiment = MainControl.Instance != null ? MainControl.Instance.currentExperiment.ToString() : "None";

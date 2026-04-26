@@ -204,7 +204,7 @@ public class BB : MonoBehaviour
     {
         if (outlineImage && !outlineImage.gameObject.activeSelf)
             outlineImage.gameObject.SetActive(true);
-
+        ExperimentLogger.Instance?.LogEvent("Dwell_Start", $"Button: {gameObject.name}", "Dwell_Started");
         if (outlineImage)
         {
             dwellTimer += Time.deltaTime;
@@ -221,12 +221,12 @@ public class BB : MonoBehaviour
 
     private IEnumerator FlickerAndExecute()
     {
-        ExperimentLogger.Instance?.LogEvent("Dwell_Complete", $"Button: {gameObject.name}", "Classify_Dwelling");
+        ExperimentLogger.Instance?.LogEvent("Dwell_Complete", $"Button: {gameObject.name}", "Dwelling_Completed");
         
         currentState = State.Flickering;
         hasTriggered = true;
         
-        ExperimentLogger.Instance?.LogEvent("Flicker_Start", $"Button: {gameObject.name}, Hz: {GlobalInput.Instance.flickerHz}", "Flickering");
+        ExperimentLogger.Instance?.LogEvent("Flicker_Start", $"Button: {gameObject.name}, Hz: {GlobalInput.Instance.flickerHz}", "Flickering_Start");
 
         yield return new WaitForSeconds(GlobalInput.Instance.flickerDuration);
 
@@ -236,7 +236,7 @@ public class BB : MonoBehaviour
         if (runtimeMaterialFlicker != null)
             runtimeMaterialFlicker.SetFloat("_FlickerState", 0f);
 
-        ExperimentLogger.Instance?.LogEvent("Flicker_End", $"Button: {gameObject.name}", "Wait_For_Classify_Flickering");
+        ExperimentLogger.Instance?.LogEvent("Flicker_End", $"Button: {gameObject.name}", "Flickering_Completed");
 
         Execution(selectedAction);
     }
