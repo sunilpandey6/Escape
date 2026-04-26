@@ -68,6 +68,8 @@ public class OB : MonoBehaviour
     #region Pointer Event
     public void StartGaze()
     {
+        if (MainControl.Instance != null && !MainControl.Instance.isGazeInteractionEnabled) return;
+
         if (activeObject != null && activeObject != this) return;
         activeObject = this;
 
@@ -77,6 +79,8 @@ public class OB : MonoBehaviour
 
     public void StopGaze()
     {
+        if (MainControl.Instance != null && !MainControl.Instance.isGazeInteractionEnabled) return;
+
         if (activeObject != this) return;
 
         isHovering = false;

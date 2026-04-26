@@ -27,7 +27,7 @@ public class BB : MonoBehaviour
     public enum ActionType
     {
         None,
-        Intro,
+        ButtonAction,
         TestUI
     }
     [SerializeField] private State currentState = State.Idle;
@@ -239,7 +239,6 @@ public class BB : MonoBehaviour
         ExperimentLogger.Instance?.LogEvent("Flicker_End", $"Button: {gameObject.name}", "Wait_For_Classify_Flickering");
 
         Execution(selectedAction);
-        button?.onClick.Invoke();
     }
 
     public void ResetColor()
@@ -264,7 +263,7 @@ public class BB : MonoBehaviour
         {
             case ActionType.None:
                 break;
-            case ActionType.Intro:
+            case ActionType.ButtonAction:
                 button?.onClick.Invoke();
                 break;
             case ActionType.TestUI:

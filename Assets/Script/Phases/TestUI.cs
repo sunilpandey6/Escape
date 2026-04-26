@@ -8,6 +8,10 @@ public class TestUI : MonoBehaviour
     [Header("UI Reference")]
     public TMP_Text value;
     
+    [Header("UI Panels")]
+    public GameObject Introduction;
+    public GameObject testCanvas;
+
     private string currentText = "";
 
 
@@ -16,6 +20,17 @@ public class TestUI : MonoBehaviour
     {
         PositionCanvasFront();
         UpdateDisplay();
+
+        if (MainControl.Instance != null && MainControl.Instance.currentExperiment == MainControl.ExperimentType.Hybrid)
+        {
+            if (Introduction != null) Introduction.SetActive(true);
+            if (testCanvas != null) testCanvas.SetActive(false);
+        }
+        else
+        {
+            if (Introduction != null) Introduction.SetActive(false);
+            if (testCanvas != null) testCanvas.SetActive(true);
+        }
     }
 #endregion
 
@@ -43,6 +58,14 @@ public class TestUI : MonoBehaviour
     {
         if (value != null)
             value.text = currentText;
+    }
+#endregion
+
+#region Panel Switching
+    public void StartTestCanvas()
+    {
+        if (Introduction != null) Introduction.SetActive(false);
+        if (testCanvas != null) testCanvas.SetActive(true);
     }
 #endregion
 
