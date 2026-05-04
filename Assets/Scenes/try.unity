@@ -481,6 +481,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4542422705357297023, guid: 84107906bf09946e0a8f098a1c15ab31, type: 3}
+      propertyPath: m_times
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 4542422705357297023, guid: 84107906bf09946e0a8f098a1c15ab31, type: 3}
+      propertyPath: blankDuration
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 7598864495493032180, guid: 84107906bf09946e0a8f098a1c15ab31, type: 3}
       propertyPath: m_Name
       value: TrainingBCI

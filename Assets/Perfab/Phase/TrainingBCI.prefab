@@ -355,6 +355,7 @@ MonoBehaviour:
   outlineSize: 15
   borderSize: 3
   selectedAction: 1
+  buttonId: 
   value: 
   isDelete: 0
   isNext: 0
@@ -1122,6 +1123,7 @@ MonoBehaviour:
   outlineSize: 15
   borderSize: 3
   selectedAction: 1
+  buttonId: 
   value: 
   isDelete: 0
   isNext: 0
@@ -1432,9 +1434,9 @@ MonoBehaviour:
   IntroductionCanvas: {fileID: 8252314386442237459}
   IntroButton: {fileID: 3211552743813725656}
   IntroNextButton: {fileID: 3568475214070324856}
-  m_times: 5
+  m_times: 10
   showDuration: 4
-  blankDuration: 3
+  blankDuration: 4
 --- !u!1 &7625522240845991913
 GameObject:
   m_ObjectHideFlags: 0

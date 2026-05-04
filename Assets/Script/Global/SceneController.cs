@@ -62,6 +62,9 @@ public class SceneController : MonoBehaviour
             case MainControl.ExperimentPhase.Demo3D:
                 if (demo3DObject != null) demo3DObject.SetActive(true);
                 break;
+            case MainControl.ExperimentPhase.TrainBCI:
+                if (trainBCIObject != null) trainBCIObject.SetActive(true);
+                break;
             case MainControl.ExperimentPhase.Test3D:
                 if (test3DObject != null) test3DObject.SetActive(true);
                 break;
@@ -77,6 +80,7 @@ public class SceneController : MonoBehaviour
         if (settingUIObject != null) settingUIObject.SetActive(false);
         if (testUIObject != null) testUIObject.SetActive(false);
         if (demo3DObject != null) demo3DObject.SetActive(false);
+        if (trainBCIObject != null) trainBCIObject.SetActive(false);
         if (test3DObject != null) test3DObject.SetActive(false);
     }
 }

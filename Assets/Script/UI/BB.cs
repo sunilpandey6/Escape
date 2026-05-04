@@ -16,12 +16,15 @@ public class BB : MonoBehaviour
         FlickerDemo
     }
 
+    // WaitingForLSL: flicker has finished; we are waiting for the Python
+    // backend to confirm or reject the detection before executing the action.
     enum State
     {
         Idle,
         Hovering,
         Dwelling,
         Flickering,
+        WaitingForLSL,
     }
 
     public enum ActionType
@@ -49,9 +52,10 @@ public class BB : MonoBehaviour
     [SerializeField] private bool hasTriggered = false;
     [SerializeField] private float dwellTimer = 0f;
 
-    public static BB activeButton = null;
-
-    // Removed: flickerTimes, framesPerCycle, halfCycle — no longer needed
+    // Ownership: which button is actively waiting for an LSL response.
+    // Only one button can be waiting at a time across the whole scene.
+    public static BB activeButton  = null;
+    public static BB waitingButton = null;
 
     // Time-based flicker anchor
     private float flickerStartTime = -1f;
@@ -62,6 +66,16 @@ public class BB : MonoBehaviour
 
     [Header("Button Action")]
     [SerializeField] private ActionType selectedAction;
+
+    // Unique identifier for this button — set in the Inspector.
+    // Python echoes this back in BCIMessage.Detail so we can verify ownership.
+    [Header("BCI Identity")]
+    [Tooltip("Unique button ID sent as the LSL marker Detail. Must match what Python echoes back.")]
+    [SerializeField] private string buttonId;
+
+    // Last event and detail strings sent to LSL — used for response validation.
+    private string lastEvent;
+    private string lastDetail;
 
     [Header("UI Control reference")]
     public string value;
@@ -80,6 +94,8 @@ public class BB : MonoBehaviour
 
         if (borderImage)
             borderRect.sizeDelta = buttonRect.sizeDelta + new Vector2(borderSize * 2, borderSize * 2);
+        
+        buttonId = gameObject.name;
     }
 
     void OnEnable()
@@ -99,19 +115,29 @@ public class BB : MonoBehaviour
             ApplyFlickerColors();
         }
 
-        // reset runtime state (important!)
-        dwellTimer = 0f;
-        hasTriggered = false;
+        // Reset runtime state
+        dwellTimer       = 0f;
+        hasTriggered     = false;
         flickerStartTime = -1f;
+
+        // Subscribe to the LSL flicker event — unsubscribed in OnDisable
+        if (LSLCommunicationManager.Instance != null)
+            LSLCommunicationManager.Instance.OnFlickerStateChanged += HandleFlickerLSL;
     }
 
     void OnDisable()
     {
-        runtimeMaterial = null;
-        runtimeMaterialFlicker = null;
+        // Unsubscribe to prevent null-ref after scene unload
+        if (LSLCommunicationManager.Instance != null)
+            LSLCommunicationManager.Instance.OnFlickerStateChanged -= HandleFlickerLSL;
 
-        if (activeButton == this)
-            activeButton = null;
+        runtimeMaterial         = null;
+        runtimeMaterialFlicker  = null;
+
+        if (activeButton  == this) activeButton  = null;
+        if (waitingButton == this) waitingButton = null;
+
+        StopAllCoroutines();
     }
 
     void ApplyGlobalColors()
@@ -166,7 +192,6 @@ public class BB : MonoBehaviour
     {
         if (outlineImage && !outlineImage.gameObject.activeSelf) outlineImage.gameObject.SetActive(true);
 
-
         currentState = State.Dwelling;
 
         dwellTimer += Time.deltaTime;
@@ -204,7 +229,10 @@ public class BB : MonoBehaviour
     {
         if (outlineImage && !outlineImage.gameObject.activeSelf)
             outlineImage.gameObject.SetActive(true);
+
         ExperimentLogger.Instance?.LogEvent("Dwell_Start", $"Button: {gameObject.name}", "Dwell_Started");
+        LSL_Logger.Instance?.LogEvent("Dwell_Start", $"Button: {gameObject.name}", "Dwell_Started");
+
         if (outlineImage)
         {
             dwellTimer += Time.deltaTime;
@@ -222,23 +250,43 @@ public class BB : MonoBehaviour
     private IEnumerator FlickerAndExecute()
     {
         ExperimentLogger.Instance?.LogEvent("Dwell_Complete", $"Button: {gameObject.name}", "Dwelling_Completed");
-        
-        currentState = State.Flickering;
-        hasTriggered = true;
-        
-        ExperimentLogger.Instance?.LogEvent("Flicker_Start", $"Button: {gameObject.name}, Hz: {GlobalInput.Instance.flickerHz}", "Flickering_Start");
+        LSL_Logger.Instance?.LogEvent("Dwell_Complete", $"Button: {gameObject.name}", "Dwelling_Completed");
+
+        currentState     = State.Flickering;
+        hasTriggered     = true;
+        flickerStartTime = -1f;
+
+        // Store the event/detail pair so HandleFlickerLSL can validate the echo
+        lastEvent  = "Flicker_Start";
+        lastDetail = buttonId;
+
+        ExperimentLogger.Instance?.LogEvent(lastEvent,
+            $"Button: {gameObject.name}, Hz: {GlobalInput.Instance.flickerHz}", "Flickering_Start");
+        LSL_Logger.Instance?.LogEvent(lastEvent, lastDetail, "Flickering_Start");
 
         yield return new WaitForSeconds(GlobalInput.Instance.flickerDuration);
 
-        currentState = State.Idle;
+        // Stop the visual flicker
         flickerStartTime = -1f;
-
         if (runtimeMaterialFlicker != null)
             runtimeMaterialFlicker.SetFloat("_FlickerState", 0f);
 
         ExperimentLogger.Instance?.LogEvent("Flicker_End", $"Button: {gameObject.name}", "Flickering_Completed");
+        LSL_Logger.Instance?.LogEvent("Flicker_End", $"Button: {gameObject.name}", "Flickering_Completed");
 
-        Execution(selectedAction);
+        // ── Route by experiment mode ─────────────────────────────────────────
+        if (!IsBCIMode())
+        {
+            // EyeTracking: execute immediately, no LSL wait
+            currentState = State.Idle;
+            Execution(selectedAction);
+            yield break;
+        }
+
+        // Hybrid / BCI: park here and wait for HandleFlickerLSL to fire
+        currentState  = State.WaitingForLSL;
+        waitingButton = this;
+        Debug.Log($"[BB] {buttonId} is WaitingForLSL.");
     }
 
     public void ResetColor()
@@ -253,12 +301,89 @@ public class BB : MonoBehaviour
 
     #endregion
 
+    // ─────────────────────────────────────────────────────────────────────────
+    #region LSL Response Handler
+
+    /// <summary>
+    /// Called by LSLCommunicationManager whenever a Flicker code (100/101) arrives.
+    /// Validates 4 conditions before acting:
+    ///   1. Ownership  — this button is the one waiting
+    ///   2. State      — we are still in WaitingForLSL
+    ///   3. Event match — Python echoed back the same event label
+    ///   4. Detail match — Python echoed back our buttonId
+    /// </summary>
+    private void HandleFlickerLSL(bool detected, BCIMessage msg)
+    {
+        // 1. Ownership: only the button that sent the flicker should respond
+        if (waitingButton != this) return;
+
+        // 2. State guard: if we somehow left WaitingForLSL, ignore
+        if (currentState != State.WaitingForLSL) return;
+
+        // 3. Event match: Python must echo back "Flicker_Start"
+        if (msg.Event != lastEvent) return;
+
+        // 4. Detail match: Python must echo back our specific buttonId
+        if (msg.Detail != lastDetail) return;
+
+        Debug.Log($"[BB] Valid LSL response for '{buttonId}': detected={detected}");
+
+        if (detected)
+        {
+            // Clean ownership and execute the configured action
+            waitingButton = null;
+            currentState  = State.Idle;
+            Execution(selectedAction);
+        }
+        else
+        {
+            // Python reported no detection — retry the flicker sequence
+            StartCoroutine(RetryFlicker());
+        }
+    }
+
+    /// <summary>
+    /// Brief pause, then re-runs the flicker window before entering WaitingForLSL again.
+    /// Does NOT re-log Dwell events — only the flicker portion is repeated.
+    /// </summary>
+    private IEnumerator RetryFlicker()
+    {
+        Debug.Log($"[BB] Retrying flicker for '{buttonId}'.");
+
+        // Short gap so the EEG epoch window is clean
+        yield return new WaitForSeconds(0.3f);
+
+        currentState     = State.Flickering;
+        flickerStartTime = -1f;
+
+        // Re-send the LSL marker with the same event/detail so Python knows
+        LSL_Logger.Instance?.LogEvent(lastEvent, lastDetail, "Flickering_Retry");
+
+        yield return new WaitForSeconds(GlobalInput.Instance.flickerDuration);
+
+        // Stop flicker visual
+        flickerStartTime = -1f;
+        if (runtimeMaterialFlicker != null)
+            runtimeMaterialFlicker.SetFloat("_FlickerState", 0f);
+
+        // Back to waiting — HandleFlickerLSL will fire again when Python responds
+        currentState  = State.WaitingForLSL;
+        waitingButton = this;
+        Debug.Log($"[BB] '{buttonId}' re-entered WaitingForLSL after retry.");
+    }
+
+    #endregion
+
+    // ─────────────────────────────────────────────────────────────────────────
     #region Action
 
     public void Execution(ActionType action)
     {
-        ExperimentLogger.Instance?.LogEvent("Action_Executed", $"Button: {gameObject.name}, Action: {action}", "Execution_Proceeding");
-        
+        ExperimentLogger.Instance?.LogEvent("Action_Executed",
+            $"Button: {gameObject.name}, Action: {action}", "Execution_Proceeding");
+        LSL_Logger.Instance?.LogEvent("Action_Executed",
+            $"Button: {gameObject.name}, Action: {action}", "Execution_Proceeding");
+
         switch (action)
         {
             case ActionType.None:
@@ -293,6 +418,24 @@ public class BB : MonoBehaviour
 
     #endregion
 
+    // ─────────────────────────────────────────────────────────────────────────
+    #region Helpers
+
+    /// <summary>
+    /// Returns true when the current experiment mode requires LSL confirmation
+    /// before executing a button action (Hybrid or BCI).
+    /// </summary>
+    private bool IsBCIMode()
+    {
+        if (MainControl.Instance == null) return false;
+        var exp = MainControl.Instance.currentExperiment;
+        return exp == MainControl.ExperimentType.BCI ||
+               exp == MainControl.ExperimentType.Hybrid;
+    }
+
+    #endregion
+
+    // ─────────────────────────────────────────────────────────────────────────
     #region TestUI Update
 
     public void TestUIControl()
@@ -331,7 +474,8 @@ public class BB : MonoBehaviour
 
         isHovering = true;
         ExperimentLogger.Instance?.LogEvent("Hover_Enter", $"Button: {gameObject.name}", "Hovering");
-        
+        LSL_Logger.Instance?.LogEvent("Hover_Enter", $"Button: {gameObject.name}", "Hovering");
+
         if (currentState == State.Idle)
             currentState = State.Hovering;
     }
@@ -340,13 +484,14 @@ public class BB : MonoBehaviour
     {
         if (activeButton != this) return;
 
-        isHovering = false;
-        ExperimentLogger.Instance?.LogEvent("Hover_Exit", $"Button: {gameObject.name}", "Hover_Exit");
-        
+        isHovering   = false;
         currentState = State.Idle;
-        dwellTimer = 0f;
+        dwellTimer   = 0f;
         hasTriggered = false;
         flickerStartTime = -1f;
+
+        ExperimentLogger.Instance?.LogEvent("Hover_Exit", $"Button: {gameObject.name}", "Hover_Exit");
+        LSL_Logger.Instance?.LogEvent("Hover_Exit", $"Button: {gameObject.name}", "Hover_Exit");
 
         ResetColor();
 

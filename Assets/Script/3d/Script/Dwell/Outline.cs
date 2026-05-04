@@ -6,8 +6,8 @@ using UnityEngine;
 public class Outline : MonoBehaviour
 {
     private static HashSet<Mesh> registeredMeshes = new HashSet<Mesh>();
-    private static Material cachedMaskMaterial;
-    private static Material cachedFillMaterial;
+    [SerializeField] private static Material cachedMaskMaterial;
+    [SerializeField] private static Material cachedFillMaterial;
 
     private Renderer[] renderers;
     private MaterialPropertyBlock mpb;
@@ -36,6 +36,8 @@ public class Outline : MonoBehaviour
         EnsureMaterialExist();
         ApplyMaterials();
         LoadSmoothNormals();
+
+        SetOutlineEnabled(false);
     }
 
     private void EnsureMaterialExist()
@@ -140,9 +142,22 @@ public class Outline : MonoBehaviour
         }
     }
 
+    public void SetOutlineEnabled(bool enabled)
+{
+    foreach (var renderer in renderers)
+    {
+        renderer.GetPropertyBlock(mpb);
+
+        mpb.SetFloat("_OutlineEnabled", enabled ? 1f : 0f);
+        mpb.SetFloat("_Progress", enabled ? 1f : 0f);
+
+        renderer.SetPropertyBlock(mpb);
+    }
+}
+
     public void ResetOutline()
     {
-        SetProgress(0f);
+        SetOutlineEnabled(false);
     }
 
     void OnDisable()

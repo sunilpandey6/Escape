@@ -25,7 +25,7 @@ public class TrainBCI : MonoBehaviour
     public float showDuration = 4f;
     
     [Tooltip("Duration in seconds for the blank screen between trials")]
-    public float blankDuration = 2f;
+    public float blankDuration = 4f;
 
 
 
@@ -89,11 +89,16 @@ public class TrainBCI : MonoBehaviour
             if (Door1 != null) Door1.SetActive(true);
             // Show door for n seconds
             yield return new WaitForSeconds(showDuration);
-            ExperimentLogger.Instance?.LogEvent("Train_Start", "Door1", "Training_Door1");
+            
+            ExperimentLogger.Instance?.LogEvent("Training_Door1_Start", Door1.name, "Training_Door1_Start");
+            LSL_Logger.Instance?.LogEvent("Training_Door1_Start", Door1.name, "Training_Door1_Start");
+            
             Door1.SetActive(false);
             // Blank screen for blankDuration
             yield return new WaitForSeconds(blankDuration);
-            ExperimentLogger.Instance?.LogEvent("Train_End", "Door1", "Training_Blank");
+            
+            ExperimentLogger.Instance?.LogEvent("Training_Door1_End", Door1.name, "Training_Door1_End");
+            LSL_Logger.Instance?.LogEvent("Training_Door1_End", Door1.name, "Training_Door1_End");
         }
 
         // ----------------------------------------------------
@@ -104,12 +109,20 @@ public class TrainBCI : MonoBehaviour
             if (Door2 != null) Door2.SetActive(true);                
             // Show door for n seconds
             yield return new WaitForSeconds(showDuration);
-            ExperimentLogger.Instance?.LogEvent("Train_Start", "Door2", "Training_Door2");
+            
+            ExperimentLogger.Instance?.LogEvent("Training_Door2_Start", "Door2", "Training_Door2_Start");
+            LSL_Logger.Instance?.LogEvent("Training_Door2_Start", "Door2", "Training_Door2_Start");
+            
             Door2.SetActive(false);
             // Blank screen for blankDuration
             yield return new WaitForSeconds(blankDuration);
-            ExperimentLogger.Instance?.LogEvent("Train_End", "Door2", "Training_Blank");   
+            
+            ExperimentLogger.Instance?.LogEvent("Training_Door2_End", "Door2", "Training_Door2_End");
+            LSL_Logger.Instance?.LogEvent("Training_Door2_End", "Door2", "Training_Door2_End");   
         }
+
+        ExperimentLogger.Instance?.LogEvent("Train_End", "Training Complete", "Train_End");
+        LSL_Logger.Instance?.LogEvent("Train_End", "Training Complete", "Train_End");
 
         // ----------------------------------------------------
         // Training complete: show Introduction Canvas with "End" button

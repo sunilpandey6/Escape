@@ -183,6 +183,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   demoScene: {fileID: 0}
+  test3D: {fileID: 0}
+  moveCode: 295
   selectedAction: 0
   outline: {fileID: 5329829848426906929}
   flicker: {fileID: 5116809560825898505}
@@ -190,6 +192,8 @@ MonoBehaviour:
   isHovering: 0
   hasTriggered: 0
   isFlickering: 0
+  isWaitingForLSL: 0
+  objectId: 
 --- !u!114 &-5855402112520335509
 MonoBehaviour:
   m_ObjectHideFlags: 0

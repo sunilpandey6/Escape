@@ -9,6 +9,8 @@
         _ActiveColor ("Active Color", Color) = (0,1,0,1)
         _Progress ("Progress", Range(0,1)) = 0
 
+        _OutlineEnabled ("Outline Enabled", Range(0, 1)) = 1
+
         _OutlineWidth ("Outline Width", Range(0, 30)) = 10
     }
 
@@ -61,6 +63,7 @@
             float4 _ActiveColor;
             float _Progress;
             float _OutlineWidth;
+            float _OutlineEnabled;
 
             v2f vert(appdata input)
             {
@@ -69,12 +72,20 @@
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
+                if (_OutlineEnabled < 0.5)
+                {
+                    output.position = UnityObjectToClipPos(input.vertex);
+                    return output;
+                }
+
                 float3 normal = any(input.smoothNormal) ? input.smoothNormal : input.normal;
                 float3 viewPosition = UnityObjectToViewPos(input.vertex);
                 float3 viewNormal = normalize(mul((float3x3)UNITY_MATRIX_IT_MV, normal));
 
+                float outlineScale = _OutlineWidth / 1000.0;
+
                 output.position = UnityViewToClipPos(
-                    viewPosition + viewNormal * -viewPosition.z * _OutlineWidth / 1000.0
+                    viewPosition + viewNormal * -viewPosition.z * outlineScale
                 );
 
                 return output;
