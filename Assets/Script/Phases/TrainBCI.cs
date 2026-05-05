@@ -20,12 +20,15 @@ public class TrainBCI : MonoBehaviour
     [Header("Training Parameters")]
     [Tooltip("Number of trials (m times) per door")]
     public int m_times = 5;
-    
+    [Header("Active Duration")]
     [Tooltip("Duration in seconds (n sec) to show each door")]
     public float showDuration = 4f;
-    
-    [Tooltip("Duration in seconds for the blank screen between trials")]
-    public float blankDuration = 4f;
+    [Header("Imagery  Duration")]
+    [Tooltip("Duration in seconds for the blank screen before the imagery phase")]
+    public float imageryDuration = 4f;
+    [Header("Transition Duration")]
+    [Tooltip("Duration before the imagery phase starts")]
+    public float imageryDelay = 1f;
 
 
 
@@ -79,57 +82,81 @@ public class TrainBCI : MonoBehaviour
         StartCoroutine(TrainingRoutine());
     }
 
-    private IEnumerator TrainingRoutine()
+private IEnumerator TrainingRoutine()
+{
+    float imageryDelay = 0.8f; // IMPORTANT: 500–1000ms recommended
+
+    // ----------------------------------------------------
+    // Phase 1: Train Door 1
+    // ----------------------------------------------------
+    for (int i = 0; i < m_times; i++)
     {
-        // ----------------------------------------------------
-        // Phase 1: Train Door 1
-        // ----------------------------------------------------
-        for (int i = 0; i < m_times; i++)
+        if (Door1 != null)
         {
-            if (Door1 != null) Door1.SetActive(true);
-            // Show door for n seconds
+            // ---------------- ACTIVE PHASE ----------------
+            ExperimentLogger.Instance.LogEvent("Active_Training_Door1_Start", Door1.name, "Active_Training_Door1_Start");
+            LSL_Logger.Instance?.LogEvent("Active_Training_Door1_Start", Door1.name, "Active_Training_Door1_Start");
+
+            Door1.SetActive(true);
             yield return new WaitForSeconds(showDuration);
-            
-            ExperimentLogger.Instance?.LogEvent("Training_Door1_Start", Door1.name, "Training_Door1_Start");
-            LSL_Logger.Instance?.LogEvent("Training_Door1_Start", Door1.name, "Training_Door1_Start");
-            
+
+            ExperimentLogger.Instance.LogEvent("Active_Training_Door1_End", Door1.name, "Active_Training_Door1_End");
+            LSL_Logger.Instance?.LogEvent("Active_Training_Door1_End", Door1.name, "Active_Training_Door1_End");
+
             Door1.SetActive(false);
-            // Blank screen for blankDuration
-            yield return new WaitForSeconds(blankDuration);
-            
-            ExperimentLogger.Instance?.LogEvent("Training_Door1_End", Door1.name, "Training_Door1_End");
-            LSL_Logger.Instance?.LogEvent("Training_Door1_End", Door1.name, "Training_Door1_End");
         }
 
-        // ----------------------------------------------------
-        // Phase 2: Train Door 2
-        // ----------------------------------------------------
-        for (int i = 0; i < m_times; i++)
-        {
-            if (Door2 != null) Door2.SetActive(true);                
-            // Show door for n seconds
-            yield return new WaitForSeconds(showDuration);
-            
-            ExperimentLogger.Instance?.LogEvent("Training_Door2_Start", "Door2", "Training_Door2_Start");
-            LSL_Logger.Instance?.LogEvent("Training_Door2_Start", "Door2", "Training_Door2_Start");
-            
-            Door2.SetActive(false);
-            // Blank screen for blankDuration
-            yield return new WaitForSeconds(blankDuration);
-            
-            ExperimentLogger.Instance?.LogEvent("Training_Door2_End", "Door2", "Training_Door2_End");
-            LSL_Logger.Instance?.LogEvent("Training_Door2_End", "Door2", "Training_Door2_End");   
-        }
+        // ---------------- TRANSITION GAP ----------------
+        yield return new WaitForSeconds(imageryDelay);
 
-        ExperimentLogger.Instance?.LogEvent("Train_End", "Training Complete", "Train_End");
-        LSL_Logger.Instance?.LogEvent("Train_End", "Training Complete", "Train_End");
+        // ---------------- IMAGERY PHASE ----------------
+        ExperimentLogger.Instance?.LogEvent("Image_Training_Door1_Start", Door1.name, "Image_Training_Door1_Start");
+        LSL_Logger.Instance?.LogEvent("Image_Training_Door1_Start", Door1.name, "Image_Training_Door1_Start");
 
-        // ----------------------------------------------------
-        // Training complete: show Introduction Canvas with "End" button
-        // ----------------------------------------------------
-        if (IntroductionCanvas != null) IntroductionCanvas.SetActive(true);
-        IntroNextButtonUI();
+        yield return new WaitForSeconds(imageryDuration);
+
+        ExperimentLogger.Instance?.LogEvent("Image_Training_Door1_End", Door1.name, "Image_Training_Door1_End");
+        LSL_Logger.Instance?.LogEvent("Image_Training_Door1_End", Door1.name, "Image_Training_Door1_End");
     }
+
+    // ----------------------------------------------------
+    // Phase 2: Train Door 2
+    // ----------------------------------------------------
+    for (int i = 0; i < m_times; i++)
+    {
+        if (Door2 != null)
+        {
+            ExperimentLogger.Instance.LogEvent("Active_Training_Door2_Start", Door2.name, "Active_Training_Door2_Start");
+            LSL_Logger.Instance?.LogEvent("Active_Training_Door2_Start", Door2.name, "Active_Training_Door2_Start");
+
+            Door2.SetActive(true);
+            yield return new WaitForSeconds(showDuration);
+
+            ExperimentLogger.Instance.LogEvent("Active_Training_Door2_End", Door2.name, "Active_Training_Door2_End");
+            LSL_Logger.Instance?.LogEvent("Active_Training_Door2_End", Door2.name, "Active_Training_Door2_End");
+
+            Door2.SetActive(false);
+        }
+
+        // ---------------- TRANSITION GAP ----------------
+        yield return new WaitForSeconds(imageryDelay);
+
+        // ---------------- IMAGERY PHASE ----------------
+        ExperimentLogger.Instance?.LogEvent("Image_Training_Door2_Start", Door2.name, "Image_Training_Door2_Start");
+        LSL_Logger.Instance?.LogEvent("Image_Training_Door2_Start", Door2.name, "Image_Training_Door2_Start");
+
+        yield return new WaitForSeconds(imageryDuration);
+
+        ExperimentLogger.Instance?.LogEvent("Image_Training_Door2_End", Door2.name, "Image_Training_Door2_End");
+        LSL_Logger.Instance?.LogEvent("Image_Training_Door2_End", Door2.name, "Image_Training_Door2_End");
+    }
+
+    ExperimentLogger.Instance?.LogEvent("Train_End", "Training Complete", "Train_End");
+    LSL_Logger.Instance?.LogEvent("Train_End", "Training Complete", "Train_End");
+
+    if (IntroductionCanvas != null) IntroductionCanvas.SetActive(true);
+    IntroNextButtonUI();
+}
 
     /// <summary>
     /// Hides the "Intro-Next-UI" button at the start of the scene.

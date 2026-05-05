@@ -10,13 +10,13 @@ public class LSL_Logger : MonoBehaviour
 
     // ─── Inspector ────────────────────────────────────────────────────────────
     [Tooltip("Name of the LSL outlet stream (must match what the Python receiver listens for).")]
-    public string streamName = "UnityMarkers";
+    public string streamName = "Unity_Markers";
 
     [Tooltip("LSL stream type tag.")]
     public string streamType = "Markers";
 
     [Tooltip("LSL stream channel count.")]
-    public string streamId = "UnityMarkers_Stream";
+    public string streamId = "unity_experiment_01";
 
     // ─── Private ──────────────────────────────────────────────────────────────
     private StreamOutlet outlet;
@@ -46,7 +46,7 @@ public class LSL_Logger : MonoBehaviour
             channel_count: 1,
             nominal_srate: LSL.LSL.IRREGULAR_RATE,
             channel_format: channel_format_t.cf_string,
-            source_id: sourceId
+            source_id: $"{streamId}_{sourceId}"
         );
 
         outlet = new StreamOutlet(info);
