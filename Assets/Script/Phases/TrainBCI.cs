@@ -28,7 +28,7 @@ public class TrainBCI : MonoBehaviour
     public float imageryDuration = 4f;
     [Header("Transition Duration")]
     [Tooltip("Duration before the imagery phase starts")]
-    public float imageryDelay = 1f;
+    public float imageryDelay = 0.5f;
 
 
 
@@ -40,12 +40,15 @@ public class TrainBCI : MonoBehaviour
     private void OnEnable()
     {
         ShowIntro();
-        
+        if (LSLCommunicationManager.Instance != null)
+            LSLCommunicationManager.Instance.OnTrainingEvent += OnTrainingResult;   
     }
 
     private void OnDisable()
     {
         if (IntroductionCanvas != null) IntroductionCanvas.SetActive(false);
+        if (LSLCommunicationManager.Instance != null)
+            LSLCommunicationManager.Instance.OnTrainingEvent -= OnTrainingResult;
     }
 
     /// <summary>
@@ -67,24 +70,23 @@ public class TrainBCI : MonoBehaviour
     /// </summary>
     public void StartTraining()
     {
-        if (IntroductionCanvas != null) 
-        {
-            BB[] buttons = IntroductionCanvas.GetComponentsInChildren<BB>(true); 
-            foreach (var b in buttons) 
-            {
-                if (b.gameObject.name == "Intro-UI") 
-                {
-                    b.gameObject.SetActive(false); 
-                }
-            } 
-            IntroductionCanvas.SetActive(false);
-        }
+        // if (IntroductionCanvas != null) 
+        // {
+        //     BB[] buttons = IntroductionCanvas.GetComponentsInChildren<BB>(true); 
+        //     foreach (var b in buttons) 
+        //     {
+        //         if (b.gameObject.name == "Intro-UI") 
+        //         {
+        //             b.gameObject.SetActive(false); 
+        //         }
+        //     } 
+        //     IntroductionCanvas.SetActive(false);
+        // }
         StartCoroutine(TrainingRoutine());
     }
 
 private IEnumerator TrainingRoutine()
 {
-    float imageryDelay = 0.8f; // IMPORTANT: 500–1000ms recommended
 
     // ----------------------------------------------------
     // Phase 1: Train Door 1
@@ -94,14 +96,14 @@ private IEnumerator TrainingRoutine()
         if (Door1 != null)
         {
             // ---------------- ACTIVE PHASE ----------------
-            ExperimentLogger.Instance.LogEvent("Active_Training_Door1_Start", Door1.name, "Active_Training_Door1_Start");
-            LSL_Logger.Instance?.LogEvent("Active_Training_Door1_Start", Door1.name, "Active_Training_Door1_Start");
+            ExperimentLogger.Instance.LogEvent("Training_Active_Door1_Start", Door1.name, "Training_Active_Door1_Start");
+            LSL_Logger.Instance?.LogEvent("Training_Active_Door1_Start", Door1.name, "Training_Active_Door1_Start");
 
             Door1.SetActive(true);
             yield return new WaitForSeconds(showDuration);
 
-            ExperimentLogger.Instance.LogEvent("Active_Training_Door1_End", Door1.name, "Active_Training_Door1_End");
-            LSL_Logger.Instance?.LogEvent("Active_Training_Door1_End", Door1.name, "Active_Training_Door1_End");
+            ExperimentLogger.Instance.LogEvent("Training_Active_Door1_End", Door1.name, "Training_Active_Door1_End");
+            LSL_Logger.Instance?.LogEvent("Training_Active_Door1_End", Door1.name, "Training_Active_Door1_End");
 
             Door1.SetActive(false);
         }
@@ -110,13 +112,13 @@ private IEnumerator TrainingRoutine()
         yield return new WaitForSeconds(imageryDelay);
 
         // ---------------- IMAGERY PHASE ----------------
-        ExperimentLogger.Instance?.LogEvent("Image_Training_Door1_Start", Door1.name, "Image_Training_Door1_Start");
-        LSL_Logger.Instance?.LogEvent("Image_Training_Door1_Start", Door1.name, "Image_Training_Door1_Start");
+        ExperimentLogger.Instance?.LogEvent("Training_Imagery_Door1_Start", Door1.name, "Training_Imagery_Door1_Start");
+        LSL_Logger.Instance?.LogEvent("Training_Imagery_Door1_Start", Door1.name, "Training_Imagery_Door1_Start");
 
         yield return new WaitForSeconds(imageryDuration);
 
-        ExperimentLogger.Instance?.LogEvent("Image_Training_Door1_End", Door1.name, "Image_Training_Door1_End");
-        LSL_Logger.Instance?.LogEvent("Image_Training_Door1_End", Door1.name, "Image_Training_Door1_End");
+        ExperimentLogger.Instance?.LogEvent("Training_Imagery_Door1_End", Door1.name, "Training_Imagery_Door1_End");
+        LSL_Logger.Instance?.LogEvent("Training_Imagery_Door1_End", Door1.name, "Training_Imagery_Door1_End");
     }
 
     // ----------------------------------------------------
@@ -189,4 +191,44 @@ private IEnumerator TrainingRoutine()
             MainControl.Instance.GoToNextPhase();
         }
     }
+
+    #region LSL Training Complete
+    private void OnTrainingResult(BCIMessage msg)
+{
+    var cmd = (LSLCommunicationManager.BCICommand)msg.Code;
+
+    switch (cmd)
+    {
+        case LSLCommunicationManager.BCICommand.TrainObj1ActiveComplete:
+            ExperimentLogger.Instance.LogEvent("[TrainBCI] Training complete for Active Door 1");
+            HandleDoorTrainingComplete(1, msg);
+            break;
+
+        case LSLCommunicationManager.BCICommand.TrainObj2ActiveComplete:
+            ExperimentLogger.Instance.LogEvent("[TrainBCI] Training complete for Active Door 2");
+            HandleDoorTrainingComplete(2, msg);
+            break;
+
+        case LSLCommunicationManager.BCICommand.TrainObj1ImageryComplete:
+            ExperimentLogger.Instance.LogEvent("[TrainBCI] Training complete for Imagery Door 1");
+            HandleDoorTrainingComplete(1, msg);
+            break;
+
+        case LSLCommunicationManager.BCICommand.TrainObj2ImageryComplete:
+            ExperimentLogger.Instance.LogEvent("[TrainBCI] Training complete for Imagery Door 2");
+            HandleDoorTrainingComplete(2, msg);
+            break;
+
+        default:
+            // Ignore anything else
+            return;
+    }
+
+}
+    private void HandleDoorTrainingComplete(int doorNumber, BCIMessage msg)
+    {
+        ExperimentLogger.Instance.LogEvent(msg.Event, msg.Detail, "Door:"+ doorNumber + ":"+msg.Remark.Message);
+        LSL_Logger.Instance?.LogEvent(msg.Event, msg.Detail, "Door:"+ doorNumber + ":"+msg.Remark.Message);
+    }
+    #endregion
 }

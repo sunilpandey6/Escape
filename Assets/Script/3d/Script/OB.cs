@@ -237,7 +237,6 @@ public class OB : MonoBehaviour
     }
 #endregion
 
-    // ─────────────────────────────────────────────────────────────────────────
     #region LSL Response Handler
 
     /// <summary>
@@ -248,7 +247,7 @@ public class OB : MonoBehaviour
     ///   3. Event match — Python echoed back "Flicker_Start"
     ///   4. Detail match — Python echoed back our objectId
     /// </summary>
-    private void HandleFlickerLSL(bool detected, BCIMessage msg)
+    private void HandleFlickerLSL(BCIMessage msg)
     {
         // 1. Ownership
         if (waitingObject != this) return;
@@ -262,10 +261,9 @@ public class OB : MonoBehaviour
         // 4. Detail match (objectId)
         if (msg.Detail != lastDetail) return;
 
-        Debug.Log($"[OB] Valid LSL response for '{gameObject.name}': detected={detected}");
-
-        if (detected)
+        if (msg.Code == (int)LSLCommunicationManager.BCICommand.FlickerDetected)
         {
+            Debug.Log($"[OB] Valid LSL response for '{gameObject.name}': detected = Detected");
             // Clean up ownership and execute the configured action
             waitingObject   = null;
             isWaitingForLSL = false;
@@ -273,6 +271,7 @@ public class OB : MonoBehaviour
         }
         else
         {
+            Debug.Log($"[OB] Valid LSL response for '{gameObject.name}': detected = Not Detected");
             // Python reported no detection — retry the flicker sequence
             StartCoroutine(RetryFlicker());
         }

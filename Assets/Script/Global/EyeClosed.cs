@@ -33,17 +33,13 @@ public class EyeClosed : MonoBehaviour
     private Coroutine checkCoroutine;
 
 #region Unity Lifecycle
-    private void OnEnable()
-    {
-        if (LSLCommunicationManager.Instance != null)
-            LSLCommunicationManager.Instance.OnPredictionResult += HandlePredictionLSL;
-    }
+    // private void OnEnable()
+    // {   
+    // }
 
-    private void OnDisable()
-    {
-        if (LSLCommunicationManager.Instance != null)
-            LSLCommunicationManager.Instance.OnPredictionResult -= HandlePredictionLSL;
-    }
+    // private void OnDisable()
+    // {
+    // }
 #endregion
 
 
@@ -104,6 +100,8 @@ public class EyeClosed : MonoBehaviour
                             if (audioSource != null && closedSound != null)
                             {
                                 audioSource.PlayOneShot(closedSound);
+                                ExperimentLogger.Instance?.LogEvent("Predict Door Imagery", "eye closed","Predict_Start_Imagery");
+                                LSL_Logger.Instance?.LogEvent("Predict Door Imagery", "eye closed","Predict_Start_Imagery");
                             }
 
                             OnEyesClosedTriggered?.Invoke();
@@ -139,17 +137,4 @@ public class EyeClosed : MonoBehaviour
         areEyesClosed = false;
         hasTriggered = false;
     }
-
-
-    #region LSL Prediction
-
-    private void HandlePredictionLSL(int objectId)
-    {
-        if(objectId == 300)
-        {
-            OnEyesClosedTriggered?.Invoke();
-        }
-    }
-
-    #endregion
 }

@@ -312,7 +312,7 @@ public class BB : MonoBehaviour
     ///   3. Event match — Python echoed back the same event label
     ///   4. Detail match — Python echoed back our buttonId
     /// </summary>
-    private void HandleFlickerLSL(bool detected, BCIMessage msg)
+    private void HandleFlickerLSL(BCIMessage msg)
     {
         // 1. Ownership: only the button that sent the flicker should respond
         if (waitingButton != this) return;
@@ -326,10 +326,9 @@ public class BB : MonoBehaviour
         // 4. Detail match: Python must echo back our specific buttonId
         if (msg.Detail != lastDetail) return;
 
-        Debug.Log($"[BB] Valid LSL response for '{buttonId}': detected={detected}");
-
-        if (detected)
+        if (msg.Code == (int)LSLCommunicationManager.BCICommand.FlickerDetected)
         {
+            Debug.Log($"[BB] Valid LSL response for '{buttonId}': detected = Detected");
             // Clean ownership and execute the configured action
             waitingButton = null;
             currentState  = State.Idle;
@@ -337,6 +336,7 @@ public class BB : MonoBehaviour
         }
         else
         {
+            Debug.Log($"[BB] Invalid LSL response for '{buttonId}': detected = Not Detected");
             // Python reported no detection — retry the flicker sequence
             StartCoroutine(RetryFlicker());
         }

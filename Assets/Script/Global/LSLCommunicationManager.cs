@@ -131,27 +131,27 @@ public class LSLCommunicationManager : MonoBehaviour
     ///
     /// Example subscription:
     ///   LSLCommunicationManager.Instance.OnFlickerStateChanged += HandleFlicker;
-    ///   void HandleFlicker(bool detected, BCIMessage msg) { ... }
+    ///   void HandleFlicker(BCIMessage msg) { ... }
     /// </summary>
-    public event Action<bool, BCIMessage> OnFlickerStateChanged;
+    public event Action<BCIMessage> OnFlickerStateChanged;
 
     /// <summary>
     /// Fired when a training epoch for an object completes.
     /// int param: 1 = Object 1 complete (201), 2 = Object 2 complete (202).
     /// </summary>
-    public event Action<int> OnTrainingEvent;
+    public event Action<BCIMessage> OnTrainingEvent;
 
     /// <summary>
     /// Fired when the Python model outputs a prediction result.
     /// int param: 1 = Object 1 predicted (300), 2 = Object 2 predicted (301).
     /// </summary>
-    public event Action<int> OnPredictionResult;
+    public event Action<BCIMessage> OnPredictionResult;
 
     // UnityEvent wrappers — assignable from the Inspector without code
     [Header("UnityEvent Wrappers (assignable in Inspector)")]
-    public UnityEvent<bool>  OnFlickerStateChangedUnity;
-    public UnityEvent<int>   OnTrainingEventUnity;
-    public UnityEvent<int>   OnPredictionResultUnity;
+    public UnityEvent<BCIMessage>  OnFlickerStateChangedUnity;
+    public UnityEvent<BCIMessage>   OnTrainingEventUnity;
+    public UnityEvent<BCIMessage>   OnPredictionResultUnity;
 
     // ─────────────────────────────────────────────────────────────────────────
     //  Protocol Enum
@@ -161,14 +161,18 @@ public class LSLCommunicationManager : MonoBehaviour
     /// Integer codes sent by the Python backend.
     /// Keep in sync with the Python protocol definition.
     /// </summary>
-    private enum BCICommand
+    public enum BCICommand
     {
-        FlickerDetected      = 100,
-        FlickerNotDetected   = 101,
-        TrainObj1Complete    = 201,
-        TrainObj2Complete    = 202,
-        PredictResultObj1    = 300,
-        PredictResultObj2    = 301
+        FlickerDetected         = 100,
+        FlickerNotDetected      = 101,
+        TrainObj1ActiveComplete = 201,
+        TrainObj2ActiveComplete = 202,
+        TrainObj1ImageryComplete= 203,
+        TrainObj2ImageryComplete= 204,
+        PredictResultActiveObj1 = 300,
+        PredictResultActiveObj2 = 301,
+        PredictResultImageryObj1= 302,
+        PredictResultImageryObj2= 303,
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -434,35 +438,52 @@ public class LSLCommunicationManager : MonoBehaviour
             // Full BCIMessage is forwarded so subscribers (BB) can verify
             // Event/Detail ownership before acting on the result.
             case (int)BCICommand.FlickerDetected:
-                OnFlickerStateChanged?.Invoke(true, msg);
-                OnFlickerStateChangedUnity?.Invoke(true);  // Inspector wiring: bool only
+                OnFlickerStateChanged?.Invoke(msg);
+                OnFlickerStateChangedUnity?.Invoke(msg);  // Inspector wiring: bool only
                 break;
 
             case (int)BCICommand.FlickerNotDetected:
-                OnFlickerStateChanged?.Invoke(false, msg);
-                OnFlickerStateChangedUnity?.Invoke(false); // Inspector wiring: bool only
+                OnFlickerStateChanged?.Invoke(msg);
+                OnFlickerStateChangedUnity?.Invoke(msg); // Inspector wiring: bool only
                 break;
 
             // ── Training Complete ─────────────────────────────────────────
-            case (int)BCICommand.TrainObj1Complete:
-                OnTrainingEvent?.Invoke(200);
-                OnTrainingEventUnity?.Invoke(200);
+            case (int)BCICommand.TrainObj1ActiveComplete:
+                OnTrainingEvent?.Invoke(msg);
+                OnTrainingEventUnity?.Invoke(msg);
                 break;
 
-            case (int)BCICommand.TrainObj2Complete:
-                OnTrainingEvent?.Invoke(201);
-                OnTrainingEventUnity?.Invoke(201);
+            case (int)BCICommand.TrainObj2ActiveComplete:
+                OnTrainingEvent?.Invoke(msg);
+                OnTrainingEventUnity?.Invoke(msg);
+                break;
+            case (int)BCICommand.TrainObj1ImageryComplete:
+                OnTrainingEvent?.Invoke(msg);
+                OnTrainingEventUnity?.Invoke(msg);
+                break;
+            case (int)BCICommand.TrainObj2ImageryComplete:
+                OnTrainingEvent?.Invoke(msg);
+                OnTrainingEventUnity?.Invoke(msg);
                 break;
 
             // ── Prediction Result ─────────────────────────────────────────
-            case (int)BCICommand.PredictResultObj1:
-                OnPredictionResult?.Invoke(300);
-                OnPredictionResultUnity?.Invoke(300);
+            case (int)BCICommand.PredictResultImageryObj1:
+                OnPredictionResult?.Invoke(msg);
+                OnPredictionResultUnity?.Invoke(msg);
                 break;
 
-            case (int)BCICommand.PredictResultObj2:
-                OnPredictionResult?.Invoke(301);
-                OnPredictionResultUnity?.Invoke(301);
+            case (int)BCICommand.PredictResultImageryObj2:
+                OnPredictionResult?.Invoke(msg);
+                OnPredictionResultUnity?.Invoke(msg);
+                break;
+
+            case (int)BCICommand.PredictResultActiveObj1:
+                OnPredictionResult?.Invoke(msg);
+                OnPredictionResultUnity?.Invoke(msg);
+                break;
+            case (int)BCICommand.PredictResultActiveObj2:
+                OnPredictionResult?.Invoke(msg);
+                OnPredictionResultUnity?.Invoke(msg);
                 break;
 
             // ── Unknown Code ──────────────────────────────────────────────

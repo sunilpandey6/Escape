@@ -11,6 +11,19 @@ public class Test3D : MonoBehaviour
     [SerializeField] private AutoWalk autoWalk;
     [SerializeField] private EyeClosed eyeClosed;
 
+    [Tooltip("The UI Canvas shown before and after training")]
+    public GameObject IntroductionCanvas;
+    [Header("Intro Canvas child Panel")]
+    public GameObject IntroButton;
+    public GameObject IntroNextButton;
+    [Header("Scene Reference")]
+    public GameObject Test3DScene;
+
+    [Header("Door 1")]
+    [SerializeField] private OB door1;
+    [Header("Door 2")]
+    [SerializeField] private OB door2;
+
 #region Unity Lifecycle
     private void Awake()
     {
@@ -23,27 +36,19 @@ public class Test3D : MonoBehaviour
         eyeClosed = GetComponent<EyeClosed>();
     }
 
-    void Start()
+    void OnEnable()
     {
+        if (LSLCommunicationManager.Instance != null)
+            LSLCommunicationManager.Instance.OnPredictionResult += HandlePredictionLSL;
         //show ui for test 3d
+        ShowIntro();
         
-        //if BCI mode, start the eye closed test and wait for user input
-        // if eye closed detect, then assign predict start log
-        // wait for LSL manager to get the prediction 
-        //after confirmation then manual trigger door for dwell + Flicker
-        // then move to door
-        // Final UI Close Experiment.
-        
-        if(IsBCIMode()) 
-        {
-            
-            
-        }
-        // If BCI mode, 
-        else
-        {
-            
-        }
+    }
+
+    void OnDisable()
+    {
+        if (LSLCommunicationManager.Instance != null)
+            LSLCommunicationManager.Instance.OnPredictionResult -= HandlePredictionLSL;
     }
 #endregion
 
@@ -54,6 +59,31 @@ public class Test3D : MonoBehaviour
     }
 #endregion
 
+#region  Test 3D Main
+//if BCI mode, start the eye closed test and wait for user input
+// if eye closed detect, then assign predict start log
+// wait for LSL manager to get the prediction 
+//after confirmation then manual trigger door for dwell + Flicker
+// then move to door
+// Final UI Close Experiment.
+    public void StartTest3D()
+    {
+        
+        if (IntroductionCanvas != null) IntroductionCanvas.SetActive(false);
+        if (Test3DScene != null) Test3DScene.SetActive(true);
+        Test3DMain();
+    }
+
+    public void Test3DMain()
+    {
+        if(IsBCIMode())
+        {
+            StartEyeClosedTest();
+            
+        }
+    }
+    
+#endregion
 #region Walk to Door
     public void walk(int code)
     {
@@ -61,6 +91,41 @@ public class Test3D : MonoBehaviour
     }
 #endregion
 
+#region Introduction
+    public void ShowIntro()
+    {
+        if (IntroductionCanvas != null) IntroductionCanvas.SetActive(true);
+        if (Test3DScene != null) Test3DScene.SetActive(false);
+        StartIntroButtonUI();
+    }
+
+     public void StartIntroButtonUI() 
+    { 
+        if (IntroductionCanvas == null) return;
+        IntroButton.SetActive(true);
+        IntroNextButton.SetActive(false);
+
+
+    }
+
+
+     public void IntroNextButtonUI() 
+    {
+        if (IntroductionCanvas == null) return;
+        IntroductionCanvas.SetActive(true);
+        IntroButton.SetActive(false);
+        IntroNextButton.SetActive(true);
+    }
+    
+#endregion
+
+#region LSL
+public void HandlePredictionLSL(BCIMessage msg)
+{
+    Debug.Log($"[Test3D] BCI Prediction received: {msg}");
+
+}
+#endregion
 
  #region Helpers
 
