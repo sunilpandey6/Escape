@@ -26,6 +26,13 @@ public class SettingUI : MonoBehaviour
         UpdateAllValues();
     }
 
+    private void OnDisable()
+    {
+        if (IntroPanel != null) IntroPanel.SetActive(false);
+        if (DwellPanel != null) DwellPanel.SetActive(false);
+        if (FlickerPanel != null) FlickerPanel.SetActive(false);
+    }
+
     public void PositionCanvasFront()
     {
         if (GlobalInput.Instance.cam == null) return;
@@ -68,7 +75,8 @@ public class SettingUI : MonoBehaviour
 
     public void NextPhase()
     {
-        MainControl.Instance.GoToNextPhase();
+        if (MainControl.Instance != null) MainControl.Instance.GoToNextPhase();
+        gameObject.SetActive(false);
     }
     #endregion
 

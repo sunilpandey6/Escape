@@ -47,6 +47,8 @@ public class TrainBCI : MonoBehaviour
     private void OnDisable()
     {
         if (IntroductionCanvas != null) IntroductionCanvas.SetActive(false);
+        if (Door1 != null) Door1.SetActive(false);
+        if (Door2 != null) Door2.SetActive(false);
         if (LSLCommunicationManager.Instance != null)
             LSLCommunicationManager.Instance.OnTrainingEvent -= OnTrainingResult;
     }
@@ -186,10 +188,8 @@ private IEnumerator TrainingRoutine()
     /// </summary>
     public void NextPhase()
     {
-        if (MainControl.Instance != null)
-        {
-            MainControl.Instance.GoToNextPhase();
-        }
+        if (MainControl.Instance != null) MainControl.Instance.GoToNextPhase();
+        gameObject.SetActive(false);
     }
 
     #region LSL Training Complete

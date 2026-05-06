@@ -39,6 +39,12 @@ public class TestUI : MonoBehaviour
         currentMode = MainControl.Instance.currentExperiment;
         DisplayInitialPanels();
     }
+
+    private void OnDisable()
+    {
+        if (Introduction != null) Introduction.SetActive(false);
+        if (testCanvas != null) testCanvas.SetActive(false);
+    }
 #endregion
 
 #region UI Positioning
@@ -122,7 +128,8 @@ public class TestUI : MonoBehaviour
 
     public void NextPhase()
     {
-        MainControl.Instance.GoToNextPhase();
+        if (MainControl.Instance != null) MainControl.Instance.GoToNextPhase();
+        gameObject.SetActive(false);
     }
 #endregion
 }

@@ -34,6 +34,14 @@ public class Demo3D : MonoBehaviour
         ShowIntroPanel();
     }
 
+    private void OnDisable()
+    {
+        if (IntroPanel != null) IntroPanel.SetActive(false);
+        if (Demo3DCanvas != null) Demo3DCanvas.SetActive(false);
+        if (Door1 != null) Door1.SetActive(false);
+        if (Door2 != null) Door2.SetActive(false);
+    }
+
     public void ShowIntroPanel()
     {
         if (IntroPanel != null) IntroPanel.SetActive(true);
@@ -99,7 +107,8 @@ public class Demo3D : MonoBehaviour
     #region Next Phase
     public void NextPhase()
     {
-        MainControl.Instance.GoToNextPhase();
+        if (MainControl.Instance != null) MainControl.Instance.GoToNextPhase();
+        gameObject.SetActive(false);
     }
     #endregion
 }

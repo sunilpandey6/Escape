@@ -47,6 +47,8 @@ public class Test3D : MonoBehaviour
 
     void OnDisable()
     {
+        if (IntroductionCanvas != null) IntroductionCanvas.SetActive(false);
+        if (Test3DScene != null) Test3DScene.SetActive(false);
         if (LSLCommunicationManager.Instance != null)
             LSLCommunicationManager.Instance.OnPredictionResult -= HandlePredictionLSL;
     }
@@ -140,4 +142,10 @@ public void HandlePredictionLSL(BCIMessage msg)
         return exp == MainControl.ExperimentType.BCI;
     }
     #endregion
+
+     public void NextPhase()
+    {
+        if (MainControl.Instance != null) MainControl.Instance.GoToNextPhase();            
+        gameObject.SetActive(false);
+    }
 }
