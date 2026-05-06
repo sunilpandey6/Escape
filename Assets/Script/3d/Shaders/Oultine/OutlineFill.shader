@@ -1,4 +1,4 @@
-﻿Shader "Custom/Outline Fill"
+Shader "Custom/Outline Fill"
 {
     Properties
     {
@@ -8,8 +8,6 @@
         _MidColor ("Mid Color", Color) = (1,0.5,0,1)
         _ActiveColor ("Active Color", Color) = (0,1,0,1)
         _Progress ("Progress", Range(0,1)) = 0
-
-        _OutlineEnabled ("Outline Enabled", Range(0, 1)) = 1
 
         _OutlineWidth ("Outline Width", Range(0, 30)) = 10
     }
@@ -63,7 +61,6 @@
             float4 _ActiveColor;
             float _Progress;
             float _OutlineWidth;
-            float _OutlineEnabled;
 
             v2f vert(appdata input)
             {
@@ -72,12 +69,8 @@
                 UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
-                if (_OutlineEnabled < 0.5)
-                {
-                    output.position = UnityObjectToClipPos(input.vertex);
-                    return output;
-                }
-
+                // Outline extrusion always runs — visibility is gated by _Progress
+                // and _OutlineWidth in the fragment stage and via ZTest/Stencil.
                 float3 normal = any(input.smoothNormal) ? input.smoothNormal : input.normal;
                 float3 viewPosition = UnityObjectToViewPos(input.vertex);
                 float3 viewNormal = normalize(mul((float3x3)UNITY_MATRIX_IT_MV, normal));
@@ -93,6 +86,9 @@
 
             fixed4 frag(v2f input) : SV_Target
             {
+                if(_Progress == 0)
+                    discard;
+                
                 float3 color;
 
                 if (_Progress < 0.5)
@@ -105,8 +101,8 @@
                     float t = (_Progress - 0.5) / 0.5;
                     color = lerp(_MidColor.rgb, _ActiveColor.rgb, t);
                 }
-
-                return float4(color, 1);
+                
+                return float4(color, _Progress);
             }
             ENDCG
         }

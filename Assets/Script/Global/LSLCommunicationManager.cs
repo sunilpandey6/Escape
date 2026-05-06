@@ -1,34 +1,3 @@
-// =============================================================================
-//  LSLCommunicationManager.cs
-//  Central LSL Inlet controller for the Escape BCI experiment.
-//
-//  Responsibilities
-//  ----------------
-//  • Resolves and opens an LSL integer inlet stream sent by the Python backend.
-//  • Polls the inlet every frame via a Coroutine (non-blocking).
-//  • Decodes protocol integers and dispatches them on the Unity Main Thread.
-//  • Exposes typed C# events so OB, BB, TrainBCI, and door scripts can react
-//    without knowing anything about LSL internals.
-//  • Automatically attempts to reconnect if the stream is lost.
-//
-//  Protocol (must match Python backend)
-//  ─────────────────────────────────────
-//   100  FLICKER_DETECTED
-//   101  FLICKER_NOT_DETECTED
-//   201  TRAIN_OBJ1_COMPLETE
-//   202  TRAIN_OBJ2_COMPLETE
-//   300  PREDICT_RESULT_OBJ1
-//   301  PREDICT_RESULT_OBJ2
-//
-//  Dependencies
-//  ─────────────
-//  • liblsl-CSharp  (import via UPM or manual .dll/.so drop — see instructions.txt)
-//  • LSL namespace  (LSL.StreamInlet, LSL.StreamInfo, LSL.LSL)
-//
-//  Author: [Your Name]
-//  Reviewed: Codex / Expert review pending
-// =============================================================================
-
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -36,9 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using LSL; // Requires liblsl-CSharp in the project
 
-// =============================================================================
-//  JSON Message Schema  (must match Python protocol.build_message output)
-// =============================================================================
+#region JSON Message Schema
 
 /// <summary>
 /// Remark payload nested inside every BCI message.
@@ -69,6 +36,8 @@ public class BCIMessage
     public BCIRemark Remark;  // BCI-specific analysis results
 }
 
+#endregion
+
 /// <summary>
 /// Central manager that receives integer commands from the Python BCI backend
 /// over Lab Streaming Layer (LSL) and dispatches them as typed Unity events.
@@ -78,16 +47,14 @@ public class BCIMessage
 /// </summary>
 public class LSLCommunicationManager : MonoBehaviour
 {
-    // ─────────────────────────────────────────────────────────────────────────
-    //  Singleton
-    // ─────────────────────────────────────────────────────────────────────────
+    #region Singleton
 
     /// <summary>Global singleton reference — access via LSLCommunicationManager.Instance.</summary>
     public static LSLCommunicationManager Instance { get; private set; }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  Inspector Configuration
-    // ─────────────────────────────────────────────────────────────────────────
+    #endregion
+
+    #region Inspector Configuration
 
     [Header("LSL Stream Settings")]
     [Tooltip("Name of the LSL stream sent by the Python backend (must match).")]
@@ -102,9 +69,9 @@ public class LSLCommunicationManager : MonoBehaviour
     [Tooltip("Seconds between automatic reconnect attempts when the stream is lost.")]
     public float reconnectInterval = 5f;
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  Inspector Debug / Status (read-only at runtime via Inspector)
-    // ─────────────────────────────────────────────────────────────────────────
+    #endregion
+
+    #region Inspector Debug / Status (read-only)
 
     [Header("Debug / Status (read-only)")]
     [Tooltip("True while an active LSL inlet is open.")]
@@ -120,9 +87,9 @@ public class LSLCommunicationManager : MonoBehaviour
     [Tooltip("True if LSL inlet should retry to open after failure.")]
     [SerializeField] private bool shouldRetry = false;
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  Public Events  (subscribe from OB.cs, BB.cs, door scripts, UI, etc.)
-    // ─────────────────────────────────────────────────────────────────────────
+    #endregion
+
+    #region Public Events
 
     /// <summary>
     /// Fired when the flicker detection state changes.
@@ -153,9 +120,9 @@ public class LSLCommunicationManager : MonoBehaviour
     public UnityEvent<BCIMessage>   OnTrainingEventUnity;
     public UnityEvent<BCIMessage>   OnPredictionResultUnity;
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  Protocol Enum
-    // ─────────────────────────────────────────────────────────────────────────
+    #endregion
+
+    #region Protocol Enum
 
     /// <summary>
     /// Integer codes sent by the Python backend.
@@ -175,9 +142,9 @@ public class LSLCommunicationManager : MonoBehaviour
         PredictResultImageryObj2= 303,
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  Private Fields
-    // ─────────────────────────────────────────────────────────────────────────
+    #endregion
+
+    #region Private Fields
 
     // LSL objects — only accessed from the polling coroutine (effectively single-threaded
     // in Unity since coroutines run on the main thread each frame)
@@ -196,9 +163,9 @@ public class LSLCommunicationManager : MonoBehaviour
     private Coroutine _pollingCoroutine;
     private Coroutine _reconnectCoroutine;
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  Unity Lifecycle
-    // ─────────────────────────────────────────────────────────────────────────
+    #endregion
+
+    #region Unity Lifecycle
 
     private void Awake()
     {
@@ -244,9 +211,9 @@ public class LSLCommunicationManager : MonoBehaviour
         CloseInlet();
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  Stream Resolution & Polling Coroutine
-    // ─────────────────────────────────────────────────────────────────────────
+    #endregion
+
+    #region Stream Resolution & Polling Coroutine
 
     /// <summary>
     /// Resolves the LSL stream, opens an inlet, then polls every frame.
@@ -348,9 +315,9 @@ public class LSLCommunicationManager : MonoBehaviour
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  Reconnect Logic
-    // ─────────────────────────────────────────────────────────────────────────
+    #endregion
+
+    #region Reconnect Logic
 
     /// <summary>
     /// Waits <see cref="reconnectInterval"/> seconds then restarts the poll coroutine.
@@ -374,9 +341,9 @@ public class LSLCommunicationManager : MonoBehaviour
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  Command Dispatch (Main Thread — called from Update)
-    // ─────────────────────────────────────────────────────────────────────────
+    #endregion
+
+    #region Command Dispatch
 
     /// <summary>
     /// Routes a parsed <see cref="BCIMessage"/> to the correct event.
@@ -517,9 +484,9 @@ public class LSLCommunicationManager : MonoBehaviour
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  Helpers
-    // ─────────────────────────────────────────────────────────────────────────
+    #endregion
+
+    #region Helpers
 
     /// <summary>Safely closes and nullifies the LSL inlet.</summary>
     private void CloseInlet()
@@ -540,9 +507,9 @@ public class LSLCommunicationManager : MonoBehaviour
         }
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    //  Public Utilities (for external scripts / testing)
-    // ─────────────────────────────────────────────────────────────────────────
+    #endregion
+
+    #region Public Utilities
 
     /// <summary>
     /// Manually inject a BCI command integer (for in-Editor testing without a
@@ -569,4 +536,5 @@ public class LSLCommunicationManager : MonoBehaviour
 
     /// <summary>Returns the last integer code that was successfully dequeued.</summary>
     public int LastReceivedCode => lastReceivedCode;
+    #endregion
 }

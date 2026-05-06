@@ -5,32 +5,39 @@ using UnityEngine;
 
 public class TestUI : MonoBehaviour
 {
-    [Header("UI Reference")]
+    [Header("UI Value")]
     public TMP_Text value;
     
     [Header("UI Panels")]
     public GameObject Introduction;
     public GameObject testCanvas;
 
+    [Header("Input Value")]
     private string currentText = "";
 
+
+    [Header("Experiment Mode")]
+    public MainControl.ExperimentType currentMode;
+
+    [Header("Instruction UI")]
+    public TMP_Text headingText;
+    [Header("Instruction UI")]
+    public TMP_Text instructionText;
+
+    [Header("Instruction Heading Texts")]
+    [TextArea] public string eyeTrackingHeading;
+    [TextArea] public string hybridHeading;
+
+    [Header("Instruction Main Texts")]
+    [TextArea] public string eyeTrackingInstruction;
+    [TextArea] public string hybridInstruction;
 
 #region Unity Lifecycle
     private void OnEnable()
     {
         PositionCanvasFront();
-        UpdateDisplay();
-
-        if (MainControl.Instance != null && MainControl.Instance.currentExperiment == MainControl.ExperimentType.Hybrid)
-        {
-            if (Introduction != null) Introduction.SetActive(true);
-            if (testCanvas != null) testCanvas.SetActive(false);
-        }
-        else
-        {
-            if (Introduction != null) Introduction.SetActive(false);
-            if (testCanvas != null) testCanvas.SetActive(true);
-        }
+        currentMode = MainControl.Instance.currentExperiment;
+        DisplayInitialPanels();
     }
 #endregion
 
@@ -53,11 +60,32 @@ public class TestUI : MonoBehaviour
     }
 #endregion
 
-#region UI Update
-    void UpdateDisplay()
+#region Intro Panel
+    void DisplayInitialPanels()
     {
-        if (value != null)
-            value.text = currentText;
+        if (Introduction != null) Introduction.SetActive(true);
+        if (testCanvas != null) testCanvas.SetActive(false);
+        UpdateHeadingText();
+        UpdateInstructionText();
+    }
+
+    private void UpdateHeadingText()
+    {
+        if (headingText == null) return;
+
+        if (currentMode == MainControl.ExperimentType.EyeTracking)
+            headingText.text = eyeTrackingHeading;
+        else if (currentMode == MainControl.ExperimentType.Hybrid)
+            headingText.text = hybridHeading;
+    }
+    private void UpdateInstructionText()
+    {
+        if (instructionText == null) return;
+
+        if (currentMode == MainControl.ExperimentType.EyeTracking)
+            instructionText.text = eyeTrackingInstruction;
+        else if (currentMode == MainControl.ExperimentType.Hybrid)
+            instructionText.text = hybridInstruction;
     }
 #endregion
 
@@ -66,10 +94,17 @@ public class TestUI : MonoBehaviour
     {
         if (Introduction != null) Introduction.SetActive(false);
         if (testCanvas != null) testCanvas.SetActive(true);
+        UpdateDisplay();
     }
 #endregion
 
-#region UI Input
+#region UI Test Canvas
+    void UpdateDisplay()
+    {
+        if (value != null)
+            value.text = currentText;
+    }
+    
     public void AddDigit(string digit)
     {
         currentText += digit;

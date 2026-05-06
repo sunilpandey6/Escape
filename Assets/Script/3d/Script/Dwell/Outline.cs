@@ -13,17 +13,7 @@ public class Outline : MonoBehaviour
     private MaterialPropertyBlock mpb;
 
     [SerializeField] private float outlineWidth = 10f;
-    [SerializeField] private Mode outlineMode;
     
-    public enum Mode
-    {
-        OutlineAll,
-        OutlineVisible,
-        OutlineHidden,
-        OutlineAndSilhouette,
-        SilhouetteOnly
-    }
-
     void Awake()
     {
         renderers = GetComponentsInChildren<Renderer>();
@@ -32,12 +22,13 @@ public class Outline : MonoBehaviour
 
     void OnEnable()
     {
-        
         EnsureMaterialExist();
         ApplyMaterials();
         LoadSmoothNormals();
 
-        SetOutlineEnabled(false);
+        // Start with progress at zero so the outline is invisible until a gaze begins.
+        // No toggle flag needed — _OutlineWidth and _Progress drive visibility.
+        SetProgress(0f);
     }
 
     private void EnsureMaterialExist()
@@ -101,6 +92,10 @@ public class Outline : MonoBehaviour
         return smoothNormals;
     }
 
+    /// <summary>
+    /// The ONLY runtime driver of outline state.
+    /// Pass progress = 0 to hide, 0–1 to animate the fill color.
+    /// </summary>
     public void SetProgress(float progress)
     {
         foreach (var renderer in renderers)
@@ -116,15 +111,7 @@ public class Outline : MonoBehaviour
     void UpdateZTest(MaterialPropertyBlock block)
     {
         float zMask = (float)UnityEngine.Rendering.CompareFunction.Always;
-        float zFill = outlineMode switch
-        {
-            Mode.OutlineAll => (float)UnityEngine.Rendering.CompareFunction.Always,
-            Mode.OutlineVisible => (float)UnityEngine.Rendering.CompareFunction.LessEqual,
-            Mode.OutlineHidden => (float)UnityEngine.Rendering.CompareFunction.Greater,
-            Mode.OutlineAndSilhouette => (float)UnityEngine.Rendering.CompareFunction.Always,
-            Mode.SilhouetteOnly => (float)UnityEngine.Rendering.CompareFunction.Greater,
-            _ => (float)UnityEngine.Rendering.CompareFunction.Always
-        };
+        float zFill = (float)UnityEngine.Rendering.CompareFunction.LessEqual;
 
         block.SetFloat("_ZTestMask", zMask);
         block.SetFloat("_ZTestFill", zFill);
@@ -142,29 +129,18 @@ public class Outline : MonoBehaviour
         }
     }
 
-    public void SetOutlineEnabled(bool enabled)
-{
-    foreach (var renderer in renderers)
-    {
-        renderer.GetPropertyBlock(mpb);
-
-        mpb.SetFloat("_OutlineEnabled", enabled ? 1f : 0f);
-        mpb.SetFloat("_Progress", enabled ? 1f : 0f);
-
-        renderer.SetPropertyBlock(mpb);
-    }
-}
-
+    /// <summary>
+    /// Hides the outline by resetting progress to zero.
+    /// Replaces the old SetOutlineEnabled(false) / ResetOutline() calls.
+    /// </summary>
     public void ResetOutline()
     {
-        SetOutlineEnabled(false);
+        SetProgress(0f);
     }
 
     void OnDisable()
     {
-        // Optional: remove property block to reset materials
         foreach (var renderer in renderers)
-            // renderer.SetPropertyBlock(null);
             renderer.SetPropertyBlock(null);
     }
 }

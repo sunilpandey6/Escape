@@ -5,6 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(Flicker))]
 public class OB : MonoBehaviour
 {
+    #region Variables
     [Header("References")]
     [SerializeField] private Demo3D demoScene; // Scene controller to call door actions
     [SerializeField] private Test3D test3D;
@@ -58,8 +59,13 @@ public class OB : MonoBehaviour
     private string lastEvent;
     private string lastDetail;
 
-    #region Unity_Functions
+    // Retry limiting — prevents infinite flicker loops on repeated non-detection
+    private int retryCount = 0;
+    private const int maxRetries = 3;
 
+    #endregion
+
+    #region Unity_Functions
     private void Awake()
     {
         outline  = GetComponent<Outline>();
@@ -129,7 +135,7 @@ public class OB : MonoBehaviour
         activeObject = this;
 
         isHovering = true;
-        outline.SetOutlineEnabled(true);
+        outline.SetProgress(0f); // Show outline at idle color immediately; Update() drives progress
         
         ExperimentLogger.Instance?.LogEvent("Dwell_Start", $"Object: {gameObject.name}", "Dwell_Started");
         LSL_Logger.Instance?.LogEvent("Dwell_Start", $"Object: {gameObject.name}", "Dwell_Started");
@@ -141,7 +147,8 @@ public class OB : MonoBehaviour
 
         if (activeObject != this) return;
 
-        isHovering = false;
+        isHovering   = false;
+        retryCount   = 0;
         ExperimentLogger.Instance?.LogEvent("Gaze_Stop", $"Object: {gameObject.name}", "Hover_Exit");
         LSL_Logger.Instance?.LogEvent("Gaze_Stop", $"Object: {gameObject.name}", "Hover_Exit");
         dwellTimer   = 0f;
@@ -264,7 +271,7 @@ public class OB : MonoBehaviour
         if (msg.Code == (int)LSLCommunicationManager.BCICommand.FlickerDetected)
         {
             Debug.Log($"[OB] Valid LSL response for '{gameObject.name}': detected = Detected");
-            // Clean up ownership and execute the configured action
+            retryCount      = 0;
             waitingObject   = null;
             isWaitingForLSL = false;
             ExecuteAction(selectedAction);
@@ -272,39 +279,76 @@ public class OB : MonoBehaviour
         else
         {
             Debug.Log($"[OB] Valid LSL response for '{gameObject.name}': detected = Not Detected");
-            // Python reported no detection — retry the flicker sequence
+            isWaitingForLSL = false;
             StartCoroutine(RetryFlicker());
         }
     }
 
     /// <summary>
-    /// Brief pause, then re-runs the flicker window before re-entering the wait state.
-    /// Does NOT re-log Dwell events — only the flicker portion is repeated.
+    /// Brief pause, re-runs the flicker window, then re-enters WaitingForLSL.
+    /// Cancelled immediately if the user looked away (isHovering == false) or if
+    /// maxRetries has been exceeded — whichever comes first.
     /// </summary>
     private IEnumerator RetryFlicker()
     {
-        Debug.Log($"[OB] Retrying flicker for '{gameObject.name}'.");
+        retryCount++;
 
-        isWaitingForLSL = false;
+        // ── Max-retry guard ───────────────────────────────────────────────────
+        if (retryCount > maxRetries)
+        {
+            Debug.Log($"[OB] Max retries reached for '{gameObject.name}', cancelling flicker.");
+            ExperimentLogger.Instance?.LogEvent("Retry_Cancelled", $"Object: {gameObject.name}", "Max_Retries_Reached");
+            LSL_Logger.Instance?.LogEvent("Retry_Cancelled", $"Object: {gameObject.name}", "Max_Retries_Reached");
+            CancelRetry();
+            yield break;
+        }
 
         // Short gap so the EEG epoch window is clean
         yield return new WaitForSecondsRealtime(0.3f);
 
+        // ── Hover guard — user may have looked away during the gap ─────────────
+        if (!isHovering)
+        {
+            Debug.Log($"[OB] User no longer hovering '{gameObject.name}' — cancelling retry.");
+            ExperimentLogger.Instance?.LogEvent("Retry_Cancelled", $"Object: {gameObject.name}", "Gaze_Lost");
+            LSL_Logger.Instance?.LogEvent("Retry_Cancelled", $"Object: {gameObject.name}", "Gaze_Lost");
+            CancelRetry();
+            yield break;
+        }
+
+        Debug.Log($"[OB] Retry {retryCount}/{maxRetries} for '{gameObject.name}'.");
+        ExperimentLogger.Instance?.LogEvent("Flicker_Retry", $"Object: {gameObject.name}", $"Retry: {retryCount} / {maxRetries}");
+        LSL_Logger.Instance?.LogEvent("Flicker_Retry", $"Object: {gameObject.name}", $"Retry: {retryCount} / {maxRetries}");
+        
         isFlickering = true;
         flicker.StartFlicker();
 
-        // Re-send the LSL marker with the same event/detail so Python knows
-        LSL_Logger.Instance?.LogEvent(lastEvent, lastDetail, "Flickering_Retry");
+        LSL_Logger.Instance?.LogEvent(lastEvent, lastDetail, "Flicker_Start");
+        ExperimentLogger.Instance?.LogEvent(lastEvent, lastDetail, "Flicker_Start");
 
         yield return new WaitForSecondsRealtime(GlobalInput.Instance.flickerDuration);
 
         outline.ResetOutline();
         isFlickering = false;
 
-        // Back to waiting — HandleFlickerLSL will fire again when Python responds
+        LSL_Logger.Instance?.LogEvent(lastEvent, lastDetail, "Flicker_End");
+        ExperimentLogger.Instance?.LogEvent("Flicker_End", $"Object: {gameObject.name}", "Flicker_End");
+
         isWaitingForLSL = true;
         waitingObject   = this;
-        Debug.Log($"[OB] '{gameObject.name}' re-entered WaitingForLSL after retry.");
+        Debug.Log($"[OB] '{gameObject.name}' re-entered WaitingForLSL after retry {retryCount}/{maxRetries}.");
+    }
+
+    /// <summary>
+    /// Shared cleanup for cancelled retries (max exceeded or gaze lost).
+    /// </summary>
+    private void CancelRetry()
+    {
+        isWaitingForLSL = false;
+        isFlickering    = false;
+        retryCount      = 0;
+        if (waitingObject == this) waitingObject = null;
+        outline.ResetOutline();
     }
 
     #endregion

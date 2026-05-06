@@ -77,6 +77,10 @@ public class BB : MonoBehaviour
     private string lastEvent;
     private string lastDetail;
 
+    // Retry limiting — prevents infinite flicker loops on repeated non-detection
+    private int retryCount = 0;
+    private const int maxRetries = 3;
+
     [Header("UI Control reference")]
     public string value;
     public bool isDelete;
@@ -260,9 +264,8 @@ public class BB : MonoBehaviour
         lastEvent  = "Flicker_Start";
         lastDetail = buttonId;
 
-        ExperimentLogger.Instance?.LogEvent(lastEvent,
-            $"Button: {gameObject.name}, Hz: {GlobalInput.Instance.flickerHz}", "Flickering_Start");
-        LSL_Logger.Instance?.LogEvent(lastEvent, lastDetail, "Flickering_Start");
+        ExperimentLogger.Instance?.LogEvent(lastEvent, lastDetail, "Flicker_Start");
+        LSL_Logger.Instance?.LogEvent(lastEvent, lastDetail, "Flicker_Start");
 
         yield return new WaitForSeconds(GlobalInput.Instance.flickerDuration);
 
@@ -271,8 +274,8 @@ public class BB : MonoBehaviour
         if (runtimeMaterialFlicker != null)
             runtimeMaterialFlicker.SetFloat("_FlickerState", 0f);
 
-        ExperimentLogger.Instance?.LogEvent("Flicker_End", $"Button: {gameObject.name}", "Flickering_Completed");
-        LSL_Logger.Instance?.LogEvent("Flicker_End", $"Button: {gameObject.name}", "Flickering_Completed");
+        ExperimentLogger.Instance?.LogEvent("Flicker_End", $"Button: {gameObject.name}", "Flicker_End");
+        LSL_Logger.Instance?.LogEvent(lastEvent, lastDetail, "Flicker_End");
 
         // ── Route by experiment mode ─────────────────────────────────────────
         if (!IsBCIMode())
@@ -329,7 +332,7 @@ public class BB : MonoBehaviour
         if (msg.Code == (int)LSLCommunicationManager.BCICommand.FlickerDetected)
         {
             Debug.Log($"[BB] Valid LSL response for '{buttonId}': detected = Detected");
-            // Clean ownership and execute the configured action
+            retryCount    = 0;
             waitingButton = null;
             currentState  = State.Idle;
             Execution(selectedAction);
@@ -337,27 +340,52 @@ public class BB : MonoBehaviour
         else
         {
             Debug.Log($"[BB] Invalid LSL response for '{buttonId}': detected = Not Detected");
-            // Python reported no detection — retry the flicker sequence
+            currentState  = State.Idle;
             StartCoroutine(RetryFlicker());
         }
     }
 
     /// <summary>
-    /// Brief pause, then re-runs the flicker window before entering WaitingForLSL again.
-    /// Does NOT re-log Dwell events — only the flicker portion is repeated.
+    /// Brief pause, re-runs the flicker window, then re-enters WaitingForLSL.
+    /// Cancelled immediately if the user looked away (isHovering == false) or if
+    /// maxRetries has been exceeded — whichever comes first.
     /// </summary>
     private IEnumerator RetryFlicker()
     {
-        Debug.Log($"[BB] Retrying flicker for '{buttonId}'.");
+        retryCount++;
+
+        // ── Max-retry guard ───────────────────────────────────────────────────
+        if (retryCount > maxRetries)
+        {
+            Debug.Log($"[BB] Max retries reached for '{buttonId}', cancelling flicker.");
+            ExperimentLogger.Instance?.LogEvent("Retry_Cancelled", $"Button: {gameObject.name}", "Max_Retries_Reached");
+            LSL_Logger.Instance?.LogEvent("Retry_Cancelled", $"Button: {gameObject.name}", "Max_Retries_Reached");
+            CancelRetry();
+            yield break;
+        }
 
         // Short gap so the EEG epoch window is clean
         yield return new WaitForSeconds(0.3f);
 
+        // ── Hover guard — user may have looked away during the gap ─────────────
+        if (!isHovering)
+        {
+            Debug.Log($"[BB] User no longer hovering '{buttonId}' — cancelling retry.");
+            ExperimentLogger.Instance?.LogEvent("Retry_Cancelled", $"Button: {gameObject.name}", "Gaze_Lost");
+            LSL_Logger.Instance?.LogEvent("Retry_Cancelled", $"Button: {gameObject.name}", "Gaze_Lost");
+            CancelRetry();
+            yield break;
+        }
+
+        Debug.Log($"[BB] Retry {retryCount}/{maxRetries} for '{buttonId}'.");
+        ExperimentLogger.Instance?.LogEvent("Flicker_Retry", $"Button: {gameObject.name}", $"Retry: {retryCount} / {maxRetries}");
+        LSL_Logger.Instance?.LogEvent("Flicker_Retry", $"Button: {gameObject.name}", $"Retry: {retryCount} / {maxRetries}");
+
         currentState     = State.Flickering;
         flickerStartTime = -1f;
 
-        // Re-send the LSL marker with the same event/detail so Python knows
-        LSL_Logger.Instance?.LogEvent(lastEvent, lastDetail, "Flickering_Retry");
+        LSL_Logger.Instance?.LogEvent(lastEvent, lastDetail, "Flicker_Start");
+        ExperimentLogger.Instance?.LogEvent(lastEvent, lastDetail, "Flicker_Start");
 
         yield return new WaitForSeconds(GlobalInput.Instance.flickerDuration);
 
@@ -366,10 +394,27 @@ public class BB : MonoBehaviour
         if (runtimeMaterialFlicker != null)
             runtimeMaterialFlicker.SetFloat("_FlickerState", 0f);
 
+        LSL_Logger.Instance?.LogEvent(lastEvent, lastDetail, "Flicker_End");
+        ExperimentLogger.Instance?.LogEvent("Flicker_End", $"Button: {gameObject.name}", "Flicker_End");
+
         // Back to waiting — HandleFlickerLSL will fire again when Python responds
         currentState  = State.WaitingForLSL;
         waitingButton = this;
-        Debug.Log($"[BB] '{buttonId}' re-entered WaitingForLSL after retry.");
+        Debug.Log($"[BB] '{buttonId}' re-entered WaitingForLSL after retry {retryCount}/{maxRetries}.");
+    }
+
+    /// <summary>
+    /// Shared cleanup for cancelled retries (max exceeded or gaze lost).
+    /// </summary>
+    private void CancelRetry()
+    {
+        currentState = State.Idle;
+        retryCount   = 0;
+        if (waitingButton == this) waitingButton = null;
+        flickerStartTime = -1f;
+        if (runtimeMaterialFlicker != null)
+            runtimeMaterialFlicker.SetFloat("_FlickerState", 0f);
+        ResetColor();
     }
 
     #endregion
@@ -485,6 +530,7 @@ public class BB : MonoBehaviour
         if (activeButton != this) return;
 
         isHovering   = false;
+        retryCount   = 0;
         currentState = State.Idle;
         dwellTimer   = 0f;
         hasTriggered = false;
