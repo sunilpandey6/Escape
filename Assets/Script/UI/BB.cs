@@ -246,6 +246,7 @@ public class BB : MonoBehaviour
             if (dwellTimer >= GlobalInput.Instance.dwellTime && !hasTriggered)
             {
                 hasTriggered = true;
+                ResetColor();
                 StartCoroutine(FlickerAndExecute());
             }
         }

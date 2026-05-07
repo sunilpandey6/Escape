@@ -12,6 +12,9 @@ public class TestUI : MonoBehaviour
     public GameObject Introduction;
     public GameObject testCanvas;
 
+    [Header("Test panel Next button")]
+    public GameObject nextButton;
+
     [Header("Input Value")]
     private string currentText = "";
 
@@ -105,10 +108,14 @@ public class TestUI : MonoBehaviour
 #endregion
 
 #region UI Test Canvas
+
     void UpdateDisplay()
     {
         if (value != null)
             value.text = currentText;
+            
+        if (nextButton != null)
+            nextButton.SetActive(!string.IsNullOrEmpty(currentText));
     }
     
     public void AddDigit(string digit)
